@@ -8,81 +8,116 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* FloodShield: premium “Apple meteorology” light theme */
+    --background: 210 40% 99%;
+    --foreground: 222 47% 11%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222 47% 11%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 217 92% 56%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 35% 96%;
+    --muted-foreground: 215 16% 40%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 204 94% 93%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 214 30% 90%;
+    --input: 214 30% 90%;
+    --ring: 217 92% 56%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
+
+    /* Brand accents */
+    --brand-cyan: 190 92% 52%;
+    --brand-lilac: 255 90% 70%;
+
+    /* Premium surfaces */
+    --surface: 210 40% 98%;
+    --surface-foreground: 222 47% 11%;
+    --glass: 0 0% 100% / 0.65;
+    --glass-strong: 0 0% 100% / 0.82;
+    --shadow-elev: 0 20px 60px -30px hsl(222 47% 11% / 0.25);
+    --shadow-float: 0 18px 50px -28px hsl(222 47% 11% / 0.22);
+
+    /* Gradients (referenced via Tailwind backgroundImage tokens) */
+    --hero-gradient:
+      radial-gradient(900px circle at var(--mx, 50%) var(--my, 30%), hsl(var(--brand-cyan) / 0.18), transparent 50%),
+      radial-gradient(700px circle at 20% 10%, hsl(var(--brand-lilac) / 0.14), transparent 55%),
+      linear-gradient(180deg, hsl(210 40% 99%), hsl(210 30% 97%));
+    --panel-gradient: linear-gradient(135deg, hsl(var(--primary) / 0.10), hsl(var(--brand-cyan) / 0.10));
+    --heat-gradient:
+      radial-gradient(closest-side, hsl(142 70% 45% / 0.35), transparent 55%),
+      radial-gradient(closest-side, hsl(48 95% 55% / 0.35), transparent 55%),
+      radial-gradient(closest-side, hsl(0 85% 55% / 0.35), transparent 55%);
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Dark still supported for OS-level previews, but we keep it calm and premium */
+    --background: 222 47% 7%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 222 47% 9%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 222 47% 9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 92% 60%;
+    --primary-foreground: 222 47% 9%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 217 28% 16%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 217 28% 14%;
+    --muted-foreground: 215 20% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 217 28% 16%;
     --accent-foreground: 210 40% 98%;
+
+    --brand-cyan: 190 92% 55%;
+    --brand-lilac: 255 90% 74%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 217 22% 20%;
+    --input: 217 22% 20%;
+    --ring: 217 92% 60%;
+
+    --surface: 222 47% 10%;
+    --surface-foreground: 210 40% 98%;
+    --glass: 222 47% 10% / 0.55;
+    --glass-strong: 222 47% 10% / 0.75;
+    --shadow-elev: 0 24px 80px -40px hsl(0 0% 0% / 0.65);
+    --shadow-float: 0 18px 60px -40px hsl(0 0% 0% / 0.55);
+
+    --hero-gradient:
+      radial-gradient(900px circle at var(--mx, 50%) var(--my, 30%), hsl(var(--brand-cyan) / 0.18), transparent 52%),
+      radial-gradient(700px circle at 20% 10%, hsl(var(--brand-lilac) / 0.14), transparent 55%),
+      linear-gradient(180deg, hsl(222 47% 7%), hsl(222 47% 8%));
+    --panel-gradient: linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--brand-cyan) / 0.14));
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -91,6 +126,62 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer components {
+  .fs-glass {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-float);
+  }
+
+  .fs-glass-strong {
+    background: hsl(var(--glass-strong));
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-elev);
+  }
+
+  .fs-noise {
+    position: relative;
+  }
+  .fs-noise::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image:
+      radial-gradient(circle at 10% 10%, hsl(var(--foreground) / 0.18) 0 1px, transparent 2px),
+      radial-gradient(circle at 30% 60%, hsl(var(--foreground) / 0.12) 0 1px, transparent 2px),
+      radial-gradient(circle at 70% 20%, hsl(var(--foreground) / 0.14) 0 1px, transparent 2px);
+    background-size: 18px 18px;
+  }
+
+  .story-link {
+    @apply relative inline-block text-foreground/80 transition-colors hover:text-foreground;
+  }
+  .story-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    height: 2px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 300ms ease;
+    background: hsl(var(--primary) / 0.8);
+    border-radius: 999px;
+  }
+  .story-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
   }
 }
 
