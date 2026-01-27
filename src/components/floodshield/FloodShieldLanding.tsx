@@ -562,7 +562,7 @@ function Alerts() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionTitle
           eyebrow="Alert System"
-          title="iOS-style alerts that feel immediate — not alarming."
+          title="Alerts that feel immediate — not alarming."
           desc="Push-ready notifications with soft slide-in motion and clear severity cues."
         />
 
