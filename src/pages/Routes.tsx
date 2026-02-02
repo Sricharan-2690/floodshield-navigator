@@ -225,7 +225,7 @@ export default function Routes() {
               <Waves className="size-5 text-foreground" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-tight">Route Planner</p>
+              <p className="text-sm font-semibold tracking-tight">AquaLens Routes</p>
               <p className="text-xs text-muted-foreground">Find the safest path</p>
             </div>
           </div>
