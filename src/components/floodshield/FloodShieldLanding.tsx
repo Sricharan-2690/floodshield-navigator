@@ -29,7 +29,7 @@ function useReducedMotion() {
 
 function BrandMark() {
   return (
-    <div className="grid size-9 place-items-center rounded-xl bg-fs-panel shadow-float">
+    <div className="grid size-9 place-items-center rounded-xl bg-primary/10 shadow-float">
       <Waves className="size-5 text-foreground" />
     </div>
   );
@@ -47,32 +47,14 @@ function TopNav() {
           </div>
         </div>
 
-        <nav className="hidden items-center gap-6 text-sm text-muted-foreground md:flex">
-          <a className="story-link" href="#map">
-            Map Preview
-          </a>
-          <a className="story-link" href="#features">
-            Features
-          </a>
-          <a className="story-link" href="#risk">
-            Risk Score
-          </a>
-          <a className="story-link" href="#alerts">
-            Alerts
-          </a>
-          <a className="story-link" href="#analytics">
-            Analytics
-          </a>
-        </nav>
-
         <div className="flex items-center gap-2">
           <Button asChild variant="glass" size="pill" className="hidden sm:inline-flex">
-            <NavLink to="/prototype">Launch Prototype</NavLink>
+            <NavLink to="/auth?mode=login">Login</NavLink>
           </Button>
           <Button asChild variant="hero" size="pill">
-            <a href="#map" aria-label="How FloodShield works">
-              How It Works <ArrowRight className="opacity-80" />
-            </a>
+            <NavLink to="/auth">
+              Sign Up <ArrowRight className="opacity-80" />
+            </NavLink>
           </Button>
         </div>
       </div>
@@ -114,13 +96,13 @@ function Hero() {
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Button asChild variant="hero" size="pill" className="group">
-                <NavLink to="/prototype">
-                  Launch Dashboard
+                <NavLink to="/map">
+                  Launch Map
                   <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
                 </NavLink>
               </Button>
               <Button asChild variant="glass" size="pill">
-                <a href="#risk">Risk model breakdown</a>
+                <NavLink to="/dashboard">View Dashboard</NavLink>
               </Button>
             </div>
 
@@ -146,13 +128,13 @@ function Hero() {
 function HeroOrb() {
   return (
     <div className="relative mx-auto aspect-square w-full max-w-[520px]">
-      <div className="absolute inset-0 rounded-[2.5rem] bg-fs-panel shadow-elev" />
+      <div className="absolute inset-0 rounded-[2.5rem] bg-primary/5 shadow-elev" />
 
       <div className="absolute inset-0 rounded-[2.5rem] border border-border/60" />
 
-      {/* “3D earth / map” illusion */}
+      {/* "3D earth / map" illusion */}
       <div className="absolute inset-6 rounded-[2rem] fs-glass-strong overflow-hidden">
-        <div className="absolute inset-0 bg-fs-panel opacity-70" />
+        <div className="absolute inset-0 bg-primary/5 opacity-70" />
 
         <div className="absolute left-1/2 top-1/2 size-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/70 shadow-float" />
         <div className="absolute left-1/2 top-1/2 size-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/40" />
@@ -222,7 +204,7 @@ function MapPreview() {
 
         <div ref={ref} className="mt-12">
           <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-elev">
-            <div className="absolute inset-0 bg-fs-panel opacity-50" />
+            <div className="absolute inset-0 bg-primary/5 opacity-50" />
             <div className="absolute inset-0 bg-fs-heat opacity-70" />
 
             {/* Elevation shading */}
@@ -301,8 +283,8 @@ function MapPreview() {
                     <Row label="Live alert" value="Red zone nearby" />
                     <Row label="Forecast" value="Next hour +12%" />
                   </div>
-                  <Button variant="glass" size="pill" className="mt-5 w-full">
-                    View details
+                  <Button asChild variant="glass" size="pill" className="mt-5 w-full">
+                    <NavLink to="/map">Open Interactive Map</NavLink>
                   </Button>
                 </div>
               </div>
@@ -358,7 +340,7 @@ function Features() {
               style={{ transitionDelay: `${Math.min(idx * 40, 280)}ms` }}
             >
               <div className="flex items-center gap-3">
-                <div className="grid size-11 place-items-center rounded-2xl bg-fs-panel shadow-float">
+                <div className="grid size-11 place-items-center rounded-2xl bg-primary/10 shadow-float">
                   <div className="text-foreground transition-transform duration-300 hover:rotate-6">{f.icon}</div>
                 </div>
                 <h3 className="text-sm font-semibold tracking-tight">{f.title}</h3>
@@ -372,294 +354,112 @@ function Features() {
   );
 }
 
-function RiskBreakdown() {
+function RoutePreview() {
   const { ref, inView } = useInViewOnce<HTMLDivElement>();
-  const weights = [
-    { name: "Rainfall", pct: 40 },
-    { name: "Elevation & Slope", pct: 25 },
-    { name: "Waterbody Distance", pct: 15 },
-    { name: "Historical Flood Score", pct: 15 },
-    { name: "Drainage Quality", pct: 5 },
-  ];
 
-  return (
-    <section id="risk" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionTitle
-          eyebrow="Deep Dive"
-          title="Risk Score Breakdown"
-          desc="A clear, weighted model that updates as new signals arrive — rainfall, terrain, water proximity and historic patterns."
-        />
-
-        <div ref={ref} className="mt-12 grid gap-6 lg:grid-cols-12">
-          <div className="lg:col-span-7 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
-            <div className="flex items-baseline justify-between">
-              <p className="text-sm font-semibold tracking-tight">Live model weights</p>
-              <p className="text-xs text-muted-foreground">Hover for details</p>
-            </div>
-
-            <div className="mt-6 space-y-4">
-              {weights.map((w, i) => (
-                <div key={w.name} className="group">
-                  <div className="flex items-center justify-between gap-4">
-                    <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">{w.name}</p>
-                    <p className="text-sm font-medium tracking-tight">{w.pct}%</p>
-                  </div>
-                  <div className="mt-2 h-2 rounded-full bg-secondary overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-primary transition-[width] duration-1000"
-                      style={{ width: inView ? `${w.pct}%` : "0%", transitionDelay: `${i * 90}ms` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 grid gap-4">
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-xs text-muted-foreground">Current score</p>
-              <p className="mt-2 text-4xl font-semibold tracking-tight">82</p>
-              <p className="mt-2 text-sm text-muted-foreground">High confidence • localized rainfall spike</p>
-            </div>
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-xs text-muted-foreground">Explainability</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Model contributions are transparently surfaced per layer. Scores update smoothly as new satellite and rain signals
-                land.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function RoutePlanner() {
-  const { ref, inView } = useInViewOnce<HTMLDivElement>();
   return (
     <section className="py-20 sm:py-28">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <SectionTitle
           eyebrow="Safe Route Planner"
-          title="Guidance that avoids risk zones in real time."
-          desc="Two animated routes: a safe option (green) and a faster-but-risky alternative (yellow), with pulsing markers and a moving vehicle." 
+          title="Plan routes that avoid flood zones."
+          desc="Real-time guidance to find safer paths, with risk-aware navigation that adapts as conditions change."
         />
 
-        <div ref={ref} className="mt-12 overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-elev">
-          <div className="relative p-6 sm:p-10">
-            <div className="absolute inset-0 bg-fs-panel opacity-55" />
-
-            <div className="relative aspect-[16/9] rounded-[1.5rem] fs-glass-strong overflow-hidden">
-              <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1200 680" preserveAspectRatio="none" aria-hidden>
-                {/* red risk zones */}
-                <ellipse cx="860" cy="300" rx="150" ry="110" fill="hsl(0 85% 55% / 0.22)" />
-                <ellipse cx="420" cy="420" rx="170" ry="120" fill="hsl(0 85% 55% / 0.14)" />
-
-                {/* safe route */}
-                <path
-                  d="M120 560 C 280 430, 410 550, 560 420 S 840 260, 1100 210"
-                  fill="none"
-                  stroke="hsl(142 70% 45% / 0.9)"
-                  strokeWidth="7"
-                  strokeLinecap="round"
-                  strokeDasharray="22 18"
+        <div ref={ref} className="mt-12">
+          <div className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
+            <div className="grid gap-8 lg:grid-cols-2 items-center">
+              {/* Mini route visualization */}
+              <div className="relative aspect-[4/3] rounded-2xl bg-background/50 border border-border/60 overflow-hidden">
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden>
+                  {/* Risk zone */}
+                  <ellipse cx="280" cy="140" rx="60" ry="45" fill="hsl(0 85% 55% / 0.15)" />
+                  
+                  {/* Safe route (green) */}
+                  <path
+                    d="M50 240 C 120 180, 160 220, 220 170 S 320 100, 370 80"
+                    fill="none"
+                    stroke="hsl(142 70% 45% / 0.85)"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray="12 8"
+                    style={{
+                      opacity: inView ? 1 : 0,
+                      transition: "opacity 800ms ease",
+                    }}
+                  />
+                  
+                  {/* Risky route (yellow) */}
+                  <path
+                    d="M60 260 C 140 230, 180 260, 260 200 S 340 160, 380 120"
+                    fill="none"
+                    stroke="hsl(48 95% 55% / 0.75)"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    strokeDasharray="8 8"
+                    style={{
+                      opacity: inView ? 1 : 0,
+                      transition: "opacity 1100ms ease",
+                    }}
+                  />
+                </svg>
+                
+                {/* Start marker */}
+                <div 
+                  className="absolute left-[10%] top-[78%]"
+                  style={{
+                    opacity: inView ? 1 : 0,
+                    transition: "opacity 600ms ease",
+                  }}
+                >
+                  <div className="size-5 rounded-full bg-green-500 border-2 border-background shadow-lg" />
+                </div>
+                
+                {/* End marker */}
+                <div 
+                  className="absolute left-[90%] top-[24%]"
                   style={{
                     opacity: inView ? 1 : 0,
                     transition: "opacity 900ms ease",
                   }}
-                />
-
-                {/* risky route */}
-                <path
-                  d="M150 600 C 320 550, 420 620, 590 560 S 900 500, 1120 340"
-                  fill="none"
-                  stroke="hsl(48 95% 55% / 0.85)"
-                  strokeWidth="6"
-                  strokeLinecap="round"
-                  strokeDasharray="14 14"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transition: "opacity 1200ms ease",
-                  }}
-                />
-              </svg>
-
-              {/* markers */}
-              <div className="absolute left-[18%] top-[76%]">
-                <Marker tone="primary" />
-              </div>
-              <div className="absolute left-[82%] top-[32%]">
-                <Marker tone="cyan" />
-              </div>
-              <div className="absolute left-[70%] top-[44%]">
-                <Marker tone="warn" />
-              </div>
-
-              {/* vehicle */}
-              <div
-                className="absolute left-[16%] top-[74%]"
-                style={{
-                  transform: inView ? "translate(560px, -210px)" : "translate(0px, 0px)",
-                  transition: "transform 2600ms cubic-bezier(0.2,0.8,0.2,1)",
-                }}
-              >
-                <div className="grid size-10 place-items-center rounded-full bg-background/70 border border-border/70 shadow-float">
-                  <ArrowRight className="size-5" />
+                >
+                  <div className="size-5 rounded-full bg-primary border-2 border-background shadow-lg" />
                 </div>
               </div>
-            </div>
 
-            <div className="relative mt-6 grid gap-3 sm:grid-cols-3">
-              <Legend label="Safe route" color="hsl(142 70% 45% / 0.85)" />
-              <Legend label="Faster (risky)" color="hsl(48 95% 55% / 0.85)" />
-              <Legend label="Avoided zones" color="hsl(0 85% 55% / 0.50)" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+              {/* Description + CTA */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold tracking-tight">Navigate with confidence</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Enter your source and destination to get multiple route options with real-time risk assessment. 
+                    Our algorithm compares flood zones, elevation, and drainage quality to recommend the safest path.
+                  </p>
+                </div>
 
-function Legend({ label, color }: { label: string; color: string }) {
-  return (
-    <div className="fs-glass rounded-2xl px-4 py-3 flex items-center justify-between">
-      <span className="text-sm text-muted-foreground">{label}</span>
-      <span className="inline-flex h-2.5 w-10 rounded-full" style={{ background: color }} />
-    </div>
-  );
-}
-
-function Marker({ tone }: { tone: "primary" | "cyan" | "warn" }) {
-  const bg =
-    tone === "primary" ? "hsl(var(--primary) / 0.25)" : tone === "cyan" ? "hsl(var(--brand-cyan) / 0.25)" : "hsl(48 95% 55% / 0.25)";
-  const ring =
-    tone === "primary" ? "hsl(var(--primary) / 0.45)" : tone === "cyan" ? "hsl(var(--brand-cyan) / 0.45)" : "hsl(48 95% 55% / 0.45)";
-
-  return (
-    <div className="relative">
-      <div className="absolute -inset-3 rounded-full" style={{ border: `1px solid ${ring}` }} />
-      <div className="absolute -inset-5 rounded-full animate-pulse-soft" style={{ border: `1px solid ${ring}` }} />
-      <div className="grid size-10 place-items-center rounded-full border border-border/70 bg-background/70 shadow-float">
-        <span className="size-3 rounded-full" style={{ background: bg }} />
-      </div>
-    </div>
-  );
-}
-
-function Alerts() {
-  const { ref, inView } = useInViewOnce<HTMLDivElement>();
-  const alerts = [
-    { title: "Heavy rainfall incoming", body: "Storm band detected. Prepare for rising water in 25–40 minutes." },
-    { title: "Your area moved to Red Risk Zone", body: "Risk score increased due to terrain + rainfall convergence." },
-    { title: "Avoid Route A, take Route B", body: "Flooding reported on low-lying roads near the river bend." },
-  ];
-
-  return (
-    <section id="alerts" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionTitle
-          eyebrow="Alert System"
-          title="Alerts that feel immediate — not alarming."
-          desc="Push-ready notifications with soft slide-in motion and clear severity cues."
-        />
-
-        <div ref={ref} className="mt-12 grid gap-4 lg:grid-cols-12">
-          <div className="lg:col-span-6 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
-            <p className="text-sm font-semibold tracking-tight">Notification stream</p>
-            <p className="mt-2 text-sm text-muted-foreground">Designed to be glanceable and actionable.</p>
-
-            <div className="mt-6 space-y-3">
-              {alerts.map((a, i) => (
-                <div
-                  key={a.title}
-                  className={
-                    "fs-glass rounded-[1.25rem] p-4 transition-all duration-700 " +
-                    (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
-                  }
-                  style={{ transitionDelay: `${i * 120}ms` }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="grid size-10 place-items-center rounded-2xl bg-fs-panel shadow-float">
-                      <Bell className="size-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold tracking-tight">{a.title}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{a.body}</p>
-                    </div>
+                {/* Inline legend */}
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="h-1 w-5 rounded-full bg-[hsl(142_70%_45%)]" />
+                    <span className="text-muted-foreground">Safe route</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-1 w-5 rounded-full bg-[hsl(48_95%_55%)]" />
+                    <span className="text-muted-foreground">Faster (risky)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="size-3 rounded-full bg-red-500/25" />
+                    <span className="text-muted-foreground">Flood zone</span>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="lg:col-span-6 grid gap-4">
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-xs text-muted-foreground">Delivery</p>
-              <p className="mt-2 text-sm text-muted-foreground">Mobile push, SMS and dashboard banners share the same severity model.</p>
-            </div>
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-xs text-muted-foreground">Actions</p>
-              <p className="mt-2 text-sm text-muted-foreground">One tap opens the relevant layer: risk breakdown, safe routes, or monitoring areas.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Analytics() {
-  const { ref, inView } = useInViewOnce<HTMLDivElement>();
-  return (
-    <section id="analytics" className="py-20 sm:py-28">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SectionTitle
-          eyebrow="Analytics"
-          title="Premium charts for planning, not just monitoring."
-          desc="Animated dashboard visuals: trends, correlation and clustering — presented with calm, Apple-like clarity."
-        />
-
-        <div ref={ref} className="mt-12 grid gap-4 lg:grid-cols-12">
-          <div className="lg:col-span-7 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
-            <p className="text-sm font-semibold tracking-tight">Weekly flood risk trend</p>
-            <div className="mt-6 h-44 rounded-[1.5rem] bg-background/50 border border-border/60 overflow-hidden">
-              <div className="relative h-full">
-                <div
-                  className="absolute inset-y-0 left-0 w-[60%] bg-fs-panel"
-                  style={{
-                    transform: inView ? "translateX(0%)" : "translateX(-20%)",
-                    opacity: inView ? 1 : 0,
-                    transition: "transform 900ms ease, opacity 900ms ease",
-                  }}
-                />
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 600 200" preserveAspectRatio="none" aria-hidden>
-                  <path
-                    d="M0 150 C 120 140, 160 90, 240 100 S 380 160, 460 120 S 560 40, 600 70"
-                    fill="none"
-                    stroke="hsl(var(--primary) / 0.85)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    style={{
-                      opacity: inView ? 1 : 0,
-                      transition: "opacity 900ms ease 120ms",
-                    }}
-                  />
-                </svg>
+                <Button asChild variant="hero" size="pill" className="group">
+                  <NavLink to="/routes">
+                    Try Route Planner
+                    <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+                  </NavLink>
+                </Button>
               </div>
-            </div>
-          </div>
-
-          <div className="lg:col-span-5 grid gap-4">
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-sm font-semibold tracking-tight">Rainfall vs elevation</p>
-              <div className="mt-4 h-28 rounded-[1.25rem] border border-border/60 bg-background/50" />
-            </div>
-            <div className="fs-glass rounded-[2rem] p-6">
-              <p className="text-sm font-semibold tracking-tight">City risk clustering</p>
-              <div className="mt-4 h-28 rounded-[1.25rem] border border-border/60 bg-background/50" />
             </div>
           </div>
         </div>
@@ -705,7 +505,7 @@ function Testimonial() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="fs-glass-strong rounded-[2.5rem] p-8 sm:p-12">
           <p className="text-sm font-medium text-muted-foreground">Real-world story</p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-tight">“FloodShield saved my home.”</h3>
+          <h3 className="mt-3 text-2xl font-semibold tracking-tight">"FloodShield saved my home."</h3>
           <p className="mt-4 max-w-3xl text-sm text-muted-foreground">
             Ravi (Hyderabad) received an early warning as his neighborhood shifted into a Red Risk Zone. FloodShield guided him
             to a safer route, helped him move valuables, and avoid the lowest roads before the water rose.
@@ -731,19 +531,19 @@ function Footer() {
 
           <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-4">
             {[
-              { h: "Product", a: ["Dashboard", "Alerts", "Safe Routes"] },
-              { h: "Docs", a: ["API", "Data Sources", "Changelog"] },
-              { h: "Contact", a: ["Sales", "Support", "Partnerships"] },
-              { h: "Legal", a: ["Privacy", "Terms", "Security"] },
+              { h: "Product", a: [{ label: "Map", to: "/map" }, { label: "Routes", to: "/routes" }, { label: "Dashboard", to: "/dashboard" }] },
+              { h: "Account", a: [{ label: "Login", to: "/auth?mode=login" }, { label: "Sign Up", to: "/auth" }] },
+              { h: "Contact", a: [{ label: "Sales", to: "#" }, { label: "Support", to: "#" }] },
+              { h: "Legal", a: [{ label: "Privacy", to: "#" }, { label: "Terms", to: "#" }] },
             ].map((col) => (
               <div key={col.h}>
                 <p className="font-semibold tracking-tight">{col.h}</p>
                 <ul className="mt-3 space-y-2 text-muted-foreground">
                   {col.a.map((x) => (
-                    <li key={x}>
-                      <a className="story-link" href="#">
-                        {x}
-                      </a>
+                    <li key={x.label}>
+                      <NavLink className="story-link" to={x.to}>
+                        {x.label}
+                      </NavLink>
                     </li>
                   ))}
                 </ul>
@@ -766,10 +566,7 @@ export default function FloodShieldLanding() {
         <Hero />
         <MapPreview />
         <Features />
-        <RiskBreakdown />
-        <RoutePlanner />
-        <Alerts />
-        <Analytics />
+        <RoutePreview />
         <Tech />
         <Testimonial />
       </main>
