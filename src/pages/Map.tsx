@@ -136,7 +136,7 @@ export default function Map() {
               <Waves className="size-5 text-foreground" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-tight">FloodShield Map</p>
+              <p className="text-sm font-semibold tracking-tight">AquaLens Map</p>
               <p className="text-xs text-muted-foreground">
                 {locationGranted ? "Live location active" : "Using default location"}
               </p>

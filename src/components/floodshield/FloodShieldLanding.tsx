@@ -42,7 +42,7 @@ function TopNav() {
         <div className="flex items-center gap-3">
           <BrandMark />
           <div className="leading-tight">
-            <p className="text-sm font-semibold tracking-tight">FloodShield</p>
+            <p className="text-sm font-semibold tracking-tight">AquaLens</p>
             <p className="text-xs text-muted-foreground">Early warning, precise guidance</p>
           </div>
         </div>
@@ -88,7 +88,7 @@ function Hero() {
               Live risk scoring • satellite + rainfall + terrain
             </div>
             <h1 className="mt-6 text-balance text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl">
-              FloodShield — Predicting floods before they strike.
+              AquaLens — Predicting floods before they strike.
             </h1>
             <p className="mt-5 max-w-xl text-pretty text-base text-muted-foreground sm:text-lg">
               Real-time flood risk, satellite data intelligence, and safe-route guidance — all in one map.

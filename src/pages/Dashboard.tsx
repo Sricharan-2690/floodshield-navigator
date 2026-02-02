@@ -214,7 +214,7 @@ export default function Dashboard() {
               <Waves className="size-5 text-foreground" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-tight">FloodShield Dashboard</p>
+              <p className="text-sm font-semibold tracking-tight">AquaLens Dashboard</p>
               <p className="text-xs text-muted-foreground">Risk analytics & alerts</p>
             </div>
           </div>

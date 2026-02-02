@@ -41,7 +41,7 @@ export default function Auth() {
               <Waves className="size-5 text-foreground" />
             </div>
             <div className="leading-tight">
-              <p className="text-sm font-semibold tracking-tight">FloodShield</p>
+              <p className="text-sm font-semibold tracking-tight">AquaLens</p>
               <p className="text-xs text-muted-foreground">Secure access</p>
             </div>
           </div>
@@ -55,7 +55,7 @@ export default function Auth() {
             <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/10 shadow-elev mb-4">
               <Waves className="size-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome to FloodShield</h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Welcome to AquaLens</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               {mode === "login" 
                 ? "Sign in to access your dashboard" 
