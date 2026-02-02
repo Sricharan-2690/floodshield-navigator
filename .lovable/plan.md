@@ -1,99 +1,47 @@
 
-# FloodShield: Route Guidance Page and Landing Page Refinement
+# FloodShield: Multi-Page Application Restructure
 
 ## Overview
 
-This plan creates a new dedicated Route Guidance page where users can input source and destination to get safe routing options, and updates the landing page to have a compact, showcase-style route preview section instead of the current full-screen visualization.
+This plan transforms the FloodShield site from a single-page showcase into a multi-page application with:
+
+1. **Interactive Map Page** (`/map`) - Leaflet.js with OpenStreetMap data
+2. **Route Guidance Page** (`/routes`) - Source/destination input with route options
+3. **Authentication Page** (`/auth`) - Login/Sign Up with permissions
+4. **Dashboard Page** (`/dashboard`) - Risk scores, alerts, and analytics (data-driven content)
+5. **Updated Landing Page** - Generic showcase only, with compact previews
+6. **Emergency Helpline Button** - Fixed SOS button on key pages
 
 ---
 
-## New Route Guidance Page (`/routes`)
+## What Stays on Landing Page (Showcase Only)
 
-### Page Structure
+| Section | Status | Reason |
+|---------|--------|--------|
+| Hero | Keep | Brand introduction, taglines |
+| Map Preview | Keep | Visual showcase (not real data) |
+| Features | Keep | Product capabilities overview |
+| Route Preview (NEW) | Replace RoutePlanner | Compact teaser with CTA to /routes |
+| Tech Stack | Keep | Data sources info |
+| Testimonial | Keep | Social proof |
+| Footer | Keep | Navigation links |
 
-```text
-/routes
-├── Header (minimal - logo + back to home)
-├── Route Input Section
-│   ├── Source input field (with autocomplete/location picker)
-│   ├── Destination input field (with autocomplete/location picker)
-│   ├── "Find Safe Routes" button
-│   └── Optional: "Use Current Location" for source
-├── Results Section (appears after search)
-│   ├── Route Options Cards
-│   │   ├── Recommended Safe Route (green)
-│   │   │   ├── Duration, distance
-│   │   │   ├── Risk level indicator
-│   │   │   └── "Start Navigation" button
-│   │   ├── Fastest Route (yellow/warn)
-│   │   │   ├── Duration, distance
-│   │   │   ├── Risk warnings
-│   │   │   └── "Start Navigation" button
-│   │   └── Alternative Route (if applicable)
-│   ├── Route Comparison Summary
-│   │   ├── Time difference
-│   │   ├── Risk difference
-│   │   └── Avoided zones count
-│   └── Visual Map Preview (animated route lines)
-└── Emergency Button (bottom-right, fixed)
-```
+## What Moves to Dashboard Page (Data-Dependent)
 
-### Features
-
-| Feature | Description |
-|---------|-------------|
-| **Source/Destination Inputs** | Clean glassmorphism input fields with MapPin icons |
-| **Location Detection** | Optional button to use current GPS location as source |
-| **Route Cards** | Premium cards showing each route option with risk assessment |
-| **Visual Comparison** | Animated SVG showing safe vs risky routes |
-| **Risk Indicators** | Color-coded badges (green/yellow/red) for each route segment |
-| **Action Buttons** | "Start Guidance" and "Compare Details" per route |
-
-### UI Design
-
-- Apple-style glassmorphism cards
-- Consistent with landing page aesthetic
-- Animated entrance for route results
-- Pulsing markers on route visualization
-- Clear visual hierarchy: inputs at top, results below
+| Section | New Location | Reason |
+|---------|--------------|--------|
+| Risk Breakdown | `/dashboard` | Shows live model weights, needs real data |
+| Alerts | `/dashboard` | Real-time notification stream |
+| Analytics | `/dashboard` | Charts, trends, clustering data |
 
 ---
 
-## Updated Landing Page Route Preview
+## New Dependencies
 
-### Current State (Full Section)
-The current `RoutePlanner` component takes up a full section with:
-- Large animated map visualization
-- SVG route paths
-- Animated vehicle icon
-- Legend cards
-
-### New State (Compact Showcase)
-
-Replace the full `RoutePlanner` section with a compact, showcase-style preview:
-
-```text
-Route Planner Preview Section
-├── Section Title (same eyebrow/title/desc pattern)
-├── Compact Preview Card
-│   ├── Left: Small animated route illustration (simplified)
-│   ├── Right: Description + CTA
-│   │   ├── "Plan your safest route"
-│   │   ├── Brief 1-2 sentence description
-│   │   └── "Try Route Planner" button → /routes
-│   └── Optional: Mini legend (inline, not cards)
-```
-
-### Design Changes
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| **Height** | Full viewport section (~80vh) | Compact card (~300-400px) |
-| **Map Visualization** | Large with full SVG routes | Smaller, simplified preview |
-| **Vehicle Animation** | Full path animation | Removed or subtle |
-| **Legend** | 3 separate cards | Inline compact legend |
-| **CTA** | None | "Try Route Planner" → /routes |
-| **Focus** | Full demo | Teaser + link to full page |
+Install required packages for Leaflet map:
+- `leaflet` - Core mapping library
+- `react-leaflet` - React wrapper for Leaflet
+- `@types/leaflet` - TypeScript definitions
 
 ---
 
@@ -101,189 +49,250 @@ Route Planner Preview Section
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `src/pages/Routes.tsx` | **Create** | New route guidance page with src/dest inputs |
-| `src/components/floodshield/FloodShieldLanding.tsx` | **Modify** | Replace full RoutePlanner with compact preview |
-| `src/App.tsx` | **Modify** | Add `/routes` route |
+| `src/pages/Map.tsx` | **Create** | Interactive Leaflet map with OSM |
+| `src/pages/Routes.tsx` | **Create** | Route guidance with src/dest inputs |
+| `src/pages/Auth.tsx` | **Create** | Login/Signup UI with permissions |
+| `src/pages/Dashboard.tsx` | **Create** | Risk, Alerts, Analytics sections |
+| `src/components/floodshield/EmergencyButton.tsx` | **Create** | Fixed SOS button |
+| `src/components/floodshield/FloodShieldLanding.tsx` | **Modify** | Remove data sections, update nav, add compact route preview |
+| `src/App.tsx` | **Modify** | Add new routes |
+| `src/index.css` | **Modify** | Import Leaflet CSS |
 
 ---
 
-## Detailed Implementation
+## New Pages Detail
 
-### 1. Routes Page (`src/pages/Routes.tsx`)
+### 1. Map Page (`/map`)
 
-The page will include:
-
-**Header Section:**
-- Minimal header with FloodShield branding
-- Back to home link
-
-**Input Section:**
-- Two glassmorphism input fields with MapPin icons
-- Labels: "Starting Point" and "Destination"
-- "Use my location" button for source field
-- "Find Safe Routes" primary button
-
-**Results Section (after search):**
-- Grid of route option cards (2-3 options)
-- Each card shows:
-  - Route name (e.g., "Recommended Safe Route")
-  - Estimated time and distance
-  - Risk level badge (Low/Medium/High)
-  - Key warnings (if any)
-  - "Select Route" or "Start Guidance" button
-
-**Comparison Panel:**
-- Side-by-side comparison of key metrics
-- Animated bar charts for risk levels
-- List of avoided flood zones
-
-**Route Visualization:**
-- Animated SVG map similar to current landing page
-- Green (safe) and yellow (faster but risky) route lines
-- Pulsing markers for start/end points
-- Optional: Risk zone overlays (red ellipses)
-
-### 2. Landing Page Update
-
-**Replace `RoutePlanner` function with `RoutePreview`:**
+Full-screen interactive map with Leaflet and OpenStreetMap:
 
 ```text
-RoutePreview Component Structure:
-├── SectionTitle (same pattern, slightly adjusted copy)
-├── Glassmorphism Card Container
-│   ├── Grid Layout (2 columns on lg, 1 on mobile)
-│   │   ├── Left Column: Mini Route Animation
-│   │   │   ├── Simplified SVG with 2 route paths
-│   │   │   ├── Start/End markers
-│   │   │   └── Subtle animation
-│   │   └── Right Column: Description + CTA
-│   │       ├── Heading: "Plan Safe Routes"
-│   │       ├── Description text
-│   │       ├── Inline legend (colored dots + labels)
-│   │       └── Button: "Try Route Planner" → /routes
+/map
++-- Minimal header (logo + back link)
++-- Full-screen Leaflet MapContainer
+|   +-- OpenStreetMap TileLayer
+|   +-- User location marker (pulsing, if geolocation granted)
+|   +-- Optional risk zone overlays (future)
++-- Floating info panel (glassmorphism, top-left)
+|   +-- Risk score
+|   +-- Rainfall intensity
+|   +-- Elevation data
++-- Recenter button (bottom-left)
++-- Emergency button (bottom-right, red)
 ```
 
-**Key differences from current:**
-- Aspect ratio changes from 16:9 to more compact
-- Vehicle animation removed
-- Fewer visual elements
-- Clear call-to-action to the dedicated page
-- Positioned as a "feature preview" not a "full demo"
+**Location Permission Flow:**
+- On page load, prompt for geolocation
+- If granted: center map and show pulsing marker
+- If denied: default to Hyderabad (17.385, 78.4867) with a toast
 
-### 3. App.tsx Route Addition
+---
 
-Add the new route to the router:
+### 2. Route Guidance Page (`/routes`)
+
+Dedicated page for planning safe routes:
 
 ```text
-Routes:
-  / → Index (landing page)
-  /prototype → Prototype
-  /routes → Routes (NEW)
-  * → NotFound
+/routes
++-- Header (logo + back to home)
++-- Route Input Section
+|   +-- Source input field (MapPin icon)
+|   +-- "Use my location" button
+|   +-- Destination input field
+|   +-- "Find Safe Routes" primary button
++-- Results Section (appears after search)
+|   +-- Route Options Cards (2-3 options)
+|   |   +-- Recommended Safe Route (green badge)
+|   |   |   +-- Duration, distance
+|   |   |   +-- Risk level indicator
+|   |   |   +-- "Start Guidance" button
+|   |   +-- Fastest Route (yellow/red badge)
+|   |       +-- Duration, distance
+|   |       +-- Risk warnings
+|   |       +-- "Start Guidance" button
+|   +-- Route Comparison Summary
+|   |   +-- Time difference
+|   |   +-- Risk difference
+|   |   +-- Avoided zones count
+|   +-- Animated SVG Route Visualization
+|       +-- Green (safe) and yellow (risky) paths
+|       +-- Pulsing start/end markers
+|       +-- Red risk zone overlays
++-- Emergency Button (bottom-right)
 ```
 
 ---
 
-## Component Details
+### 3. Authentication Page (`/auth`)
 
-### Route Input Card Component
-
-```text
-┌─────────────────────────────────────────────┐
-│  📍 Starting Point                          │
-│  ┌─────────────────────────────────────┐    │
-│  │ Enter location or address...         │    │
-│  └─────────────────────────────────────┘    │
-│  [📍 Use my current location]               │
-│                                             │
-│  📍 Destination                             │
-│  ┌─────────────────────────────────────┐    │
-│  │ Enter destination...                 │    │
-│  └─────────────────────────────────────┘    │
-│                                             │
-│  ┌─────────────────────────────────────┐    │
-│  │       🔍 Find Safe Routes            │    │
-│  └─────────────────────────────────────┘    │
-└─────────────────────────────────────────────┘
-```
-
-### Route Option Card Component
+Premium Apple-style authentication:
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Recommended Safe Route          🟢 Low Risk │
-├─────────────────────────────────────────────┤
-│  ⏱️ 25 min  •  📏 12.4 km                    │
-│                                             │
-│  ✓ Avoids 3 flood zones                     │
-│  ✓ Higher elevation path                    │
-│                                             │
-│  ┌─────────────────────────────────────┐    │
-│  │       Start Guidance →               │    │
-│  └─────────────────────────────────────┘    │
-└─────────────────────────────────────────────┘
+/auth
++-- FloodShield logo + tagline
++-- Tab toggle (Login | Sign Up)
++-- Form card (glassmorphism)
+|   +-- Email input
+|   +-- Password input
+|   +-- [Sign Up only] Permission checkboxes
+|   |   +-- Allow location access
+|   |   +-- Receive push notifications
+|   |   +-- Share anonymized data
+|   +-- Submit button
++-- Link to switch modes
 ```
+
+This is UI-ready; backend integration with Supabase can be added later.
 
 ---
 
-## Animation Details
+### 4. Dashboard Page (`/dashboard`)
 
-### Routes Page Animations
-- Input fields: fade-in on mount
-- Route cards: staggered slide-up when results appear
-- Route lines: draw-in animation (stroke-dashoffset)
-- Markers: pulse animation
-- Risk bars: fill animation with delay
-
-### Landing Page Preview Animations
-- Card: scale-in on viewport enter
-- Route lines: subtle fade-in
-- Markers: gentle pulse
-- Simpler than full page to maintain performance
-
----
-
-## Navigation Flow
+Consolidates all data-dependent sections moved from landing:
 
 ```text
-Landing Page (/)
-    │
-    ├── Hero "Launch Dashboard" → /map (future)
-    │
-    ├── Route Preview Section
-    │       └── "Try Route Planner" → /routes
-    │
-    └── TopNav updates (future: Login/Signup)
-
-Routes Page (/routes)
-    │
-    ├── Input source + destination
-    │
-    ├── View route options
-    │
-    └── Select route → (future: start guidance on /map)
+/dashboard
++-- Header (with navigation back to home)
++-- Risk Breakdown section (from landing)
+|   +-- Live model weights with animated bars
+|   +-- Current score card
+|   +-- Explainability card
++-- Alerts section (from landing)
+|   +-- Notification stream
+|   +-- Delivery/Actions info cards
++-- Analytics section (from landing)
+|   +-- Weekly trend chart
+|   +-- Rainfall vs elevation
+|   +-- City clustering
++-- Emergency Button (bottom-right)
 ```
 
 ---
 
-## Technical Notes
+## Updated Landing Page
 
-- **State Management**: Route inputs and results will use React useState
-- **Form Handling**: Simple controlled inputs, can add react-hook-form later
-- **Animations**: Use existing useInViewOnce hook and CSS transitions
-- **Styling**: Consistent with existing fs-glass, fs-glass-strong classes
-- **Responsive**: Mobile-first, cards stack vertically on small screens
-- **Accessibility**: Proper labels, keyboard navigation for inputs
+### Navigation (TopNav) Changes
+
+| Current | After |
+|---------|-------|
+| Anchor links (#map, #features, #risk, #alerts, #analytics) | **Removed entirely** |
+| "Launch Prototype" button | **Removed** |
+| "How It Works" button | **Removed** |
+| --- | **"Login"** button (links to `/auth?mode=login`) |
+| --- | **"Sign Up"** button (links to `/auth`) |
+
+### Hero Section Changes
+
+| Current | After |
+|---------|-------|
+| "Launch Dashboard" links to `/prototype` | Links to `/map` |
+| "Risk model breakdown" anchor link | Links to `/dashboard` |
+
+### Route Planner Section Changes
+
+Replace the full-screen `RoutePlanner` with a compact `RoutePreview`:
+
+| Aspect | Before | After |
+|--------|--------|-------|
+| Height | Full section (~80vh) | Compact card (~300-400px) |
+| Map Visualization | Large with full SVG routes | Smaller, simplified preview |
+| Vehicle Animation | Full path animation | Removed |
+| Legend | 3 separate cards | Inline compact legend |
+| CTA | None | "Try Route Planner" button links to `/routes` |
+
+**New RoutePreview Structure:**
+```text
+RoutePreview Section
++-- SectionTitle (adjusted copy)
++-- Glassmorphism Card Container
+    +-- Grid Layout (2 columns on lg, 1 on mobile)
+        +-- Left: Mini Route Animation
+        |   +-- Simplified SVG with 2 route paths
+        |   +-- Start/End markers
+        |   +-- Subtle animation
+        +-- Right: Description + CTA
+            +-- Heading: "Plan Safe Routes"
+            +-- Description text
+            +-- Inline legend (colored dots + labels)
+            +-- Button: "Try Route Planner" links to /routes
+```
+
+### Sections Removed from Landing
+
+- **RiskBreakdown** - moved to `/dashboard`
+- **Alerts** - moved to `/dashboard`
+- **Analytics** - moved to `/dashboard`
+
+---
+
+## Emergency Button Component
+
+A fixed floating button for all key pages:
+
+| Aspect | Details |
+|--------|---------|
+| Design | Circular red button, phone icon, pulse animation |
+| Styling | Glassmorphism with red accent background |
+| Behavior | On click triggers `tel:112` (configurable helpline) |
+| Tooltip | Shows "Emergency Helpline" on hover |
+| Placement | Map, Routes, Dashboard pages (bottom-right corner) |
+
+---
+
+## Routing Updates (App.tsx)
+
+Add new routes:
+
+```text
+/         -> Index (landing page)
+/map      -> Map (interactive Leaflet map)
+/routes   -> Routes (route guidance page)
+/auth     -> Auth (login/signup page)
+/dashboard -> Dashboard (risk, alerts, analytics)
+/prototype -> Prototype (existing, kept but unlinked)
+*         -> NotFound
+```
+
+---
+
+## CSS Updates (index.css)
+
+Import Leaflet styles at top of file:
+
+```css
+@import "leaflet/dist/leaflet.css";
+```
+
+Also include fix for Leaflet's default marker icon issue in bundlers.
 
 ---
 
 ## Implementation Order
 
-1. Create `src/pages/Routes.tsx` with input section and mock results
-2. Add route visualization with animated SVG paths
-3. Add route option cards with risk indicators
-4. Update `src/App.tsx` to include `/routes` route
-5. Modify `src/components/floodshield/FloodShieldLanding.tsx`:
+1. Install `leaflet`, `react-leaflet`, `@types/leaflet`
+2. Import Leaflet CSS in `src/index.css`
+3. Create `EmergencyButton.tsx` component
+4. Create `Dashboard.tsx` page (move Risk, Alerts, Analytics from landing)
+5. Create `Map.tsx` page with Leaflet integration + geolocation
+6. Create `Routes.tsx` page with input section and mock route results
+7. Create `Auth.tsx` page with login/signup UI and permission checkboxes
+8. Update `FloodShieldLanding.tsx`:
+   - Remove Risk Breakdown, Alerts, Analytics sections
+   - Remove all anchor links from TopNav
+   - Add Login/Sign Up buttons to TopNav
+   - Update Hero CTA links (/map and /dashboard)
    - Replace `RoutePlanner` with compact `RoutePreview`
-   - Update CTA to link to `/routes`
-6. Test navigation flow and animations
+9. Update `App.tsx` with new routes
+
+---
+
+## Technical Notes
+
+- **Leaflet Marker Icons**: Will include bundler workaround for default marker icons
+- **Geolocation API**: Uses `navigator.geolocation.getCurrentPosition()` with proper error handling and fallback
+- **Dashboard Components**: Sections moved as-is from landing, can be enhanced with real data later
+- **Prototype Route**: `/prototype` remains accessible but unlinked from navigation
+- **Emergency Tel Link**: Works natively on mobile, may show system dialog on desktop
+- **State Management**: Route inputs use React useState; can add react-hook-form later
+- **Animations**: Reuse existing useInViewOnce hook and CSS transitions
+- **Styling**: Consistent with existing fs-glass, fs-glass-strong classes
