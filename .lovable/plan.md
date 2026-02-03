@@ -1,298 +1,237 @@
 
-# FloodShield: Multi-Page Application Restructure
+# AquaLens Map Page Beautification
 
 ## Overview
 
-This plan transforms the FloodShield site from a single-page showcase into a multi-page application with:
-
-1. **Interactive Map Page** (`/map`) - Leaflet.js with OpenStreetMap data
-2. **Route Guidance Page** (`/routes`) - Source/destination input with route options
-3. **Authentication Page** (`/auth`) - Login/Sign Up with permissions
-4. **Dashboard Page** (`/dashboard`) - Risk scores, alerts, and analytics (data-driven content)
-5. **Updated Landing Page** - Generic showcase only, with compact previews
-6. **Emergency Helpline Button** - Fixed SOS button on key pages
+This plan enhances the Map page with premium glassmorphism styling, adds a recenter button, integrates the emergency call button, displays 24-hour rainfall data, and enables click-to-query functionality for flood scores from the GeoTIFF.
 
 ---
 
-## What Stays on Landing Page (Showcase Only)
+## Current State
 
-| Section | Status | Reason |
-|---------|--------|--------|
-| Hero | Keep | Brand introduction, taglines |
-| Map Preview | Keep | Visual showcase (not real data) |
-| Features | Keep | Product capabilities overview |
-| Route Preview (NEW) | Replace RoutePlanner | Compact teaser with CTA to /routes |
-| Tech Stack | Keep | Data sources info |
-| Testimonial | Keep | Social proof |
-| Footer | Keep | Navigation links |
-
-## What Moves to Dashboard Page (Data-Dependent)
-
-| Section | New Location | Reason |
-|---------|--------------|--------|
-| Risk Breakdown | `/dashboard` | Shows live model weights, needs real data |
-| Alerts | `/dashboard` | Real-time notification stream |
-| Analytics | `/dashboard` | Charts, trends, clustering data |
+The Map page currently has:
+- Basic white panels with simple shadows
+- Displays only "Normalized Rain" percentage
+- No recenter button
+- No emergency button
+- No click interaction to query pixel values
 
 ---
 
-## New Dependencies
+## Changes Summary
 
-Install required packages for Leaflet map:
-- `leaflet` - Core mapping library
-- `react-leaflet` - React wrapper for Leaflet
-- `@types/leaflet` - TypeScript definitions
-
----
-
-## File Changes Summary
-
-| File | Action | Purpose |
-|------|--------|---------|
-| `src/pages/Map.tsx` | **Create** | Interactive Leaflet map with OSM |
-| `src/pages/Routes.tsx` | **Create** | Route guidance with src/dest inputs |
-| `src/pages/Auth.tsx` | **Create** | Login/Signup UI with permissions |
-| `src/pages/Dashboard.tsx` | **Create** | Risk, Alerts, Analytics sections |
-| `src/components/floodshield/EmergencyButton.tsx` | **Create** | Fixed SOS button |
-| `src/components/floodshield/FloodShieldLanding.tsx` | **Modify** | Remove data sections, update nav, add compact route preview |
-| `src/App.tsx` | **Modify** | Add new routes |
-| `src/index.css` | **Modify** | Import Leaflet CSS |
+| Feature | Current | After |
+|---------|---------|-------|
+| Info Panel | Plain white, basic shadow | Glassmorphism with fs-glass-strong |
+| Legend Panel | Plain white, basic shadow | Glassmorphism with fs-glass-strong |
+| Stats Displayed | Normalized Rain % only | + 24h Rain (mm), Max Rain (mm) |
+| Recenter Button | Missing | Added (bottom-left, compass icon) |
+| Emergency Button | Missing | Added (bottom-right, pulsing red) |
+| Click Interaction | None | Click pixel to show flood score popup |
+| Header | None | Minimal floating header with back link |
 
 ---
 
-## New Pages Detail
+## Implementation Details
 
-### 1. Map Page (`/map`)
-
-Full-screen interactive map with Leaflet and OpenStreetMap:
+### 1. Enhanced Info Panel (Glassmorphism + More Stats)
 
 ```text
-/map
-+-- Minimal header (logo + back link)
-+-- Full-screen Leaflet MapContainer
-|   +-- OpenStreetMap TileLayer
-|   +-- User location marker (pulsing, if geolocation granted)
-|   +-- Optional risk zone overlays (future)
-+-- Floating info panel (glassmorphism, top-left)
-|   +-- Risk score
-|   +-- Rainfall intensity
-|   +-- Elevation data
-+-- Recenter button (bottom-left)
-+-- Emergency button (bottom-right, red)
++-----------------------------------+
+|  AquaLens Live                    |
+|  -------------------------------- |
+|  Rainfall Impact                  |
+|  Normalized: 65%                  |
+|  24h Total: 12.4 mm               |
+|  Peak Hour: 8.2 mm                |
++-----------------------------------+
 ```
 
-**Location Permission Flow:**
-- On page load, prompt for geolocation
-- If granted: center map and show pulsing marker
-- If denied: default to Hyderabad (17.385, 78.4867) with a toast
+- Apply `fs-glass-strong` class for premium look
+- Display three rain metrics:
+  - Normalized rain factor (0-100%)
+  - 24h cumulative rainfall (sum of hourly values)
+  - Peak hourly rainfall (max value)
+- Add subtle icons (CloudRain, Droplets)
 
----
+### 2. Enhanced Legend Panel
 
-### 2. Route Guidance Page (`/routes`)
+- Apply `fs-glass-strong` styling
+- Keep existing color ramp display
+- Add subtle border radius and proper spacing
 
-Dedicated page for planning safe routes:
+### 3. Recenter Button (Bottom-Left with text showing recenter like google maps)
 
 ```text
-/routes
-+-- Header (logo + back to home)
-+-- Route Input Section
-|   +-- Source input field (MapPin icon)
-|   +-- "Use my location" button
-|   +-- Destination input field
-|   +-- "Find Safe Routes" primary button
-+-- Results Section (appears after search)
-|   +-- Route Options Cards (2-3 options)
-|   |   +-- Recommended Safe Route (green badge)
-|   |   |   +-- Duration, distance
-|   |   |   +-- Risk level indicator
-|   |   |   +-- "Start Guidance" button
-|   |   +-- Fastest Route (yellow/red badge)
-|   |       +-- Duration, distance
-|   |       +-- Risk warnings
-|   |       +-- "Start Guidance" button
-|   +-- Route Comparison Summary
-|   |   +-- Time difference
-|   |   +-- Risk difference
-|   |   +-- Avoided zones count
-|   +-- Animated SVG Route Visualization
-|       +-- Green (safe) and yellow (risky) paths
-|       +-- Pulsing start/end markers
-|       +-- Red risk zone overlays
-+-- Emergency Button (bottom-right)
+Position: fixed bottom-6 left-6
+Style: Glass button with compass/locate icon
+Behavior:
+  - Stores user's geolocation on load (if granted)
+  - On click: fly to stored location or default center
+  - Subtle hover animation
 ```
 
----
+### 4. Emergency Button Integration
 
-### 3. Authentication Page (`/auth`)
+- Import existing `EmergencyButton` component
+- Place at fixed bottom-6 right-6 position
+- Already has pulsing animation and tel:112 link
 
-Premium Apple-style authentication:
+### 5. Click-to-Query Flood Score
+
+When user clicks on the raster overlay:
 
 ```text
-/auth
-+-- FloodShield logo + tagline
-+-- Tab toggle (Login | Sign Up)
-+-- Form card (glassmorphism)
-|   +-- Email input
-|   +-- Password input
-|   +-- [Sign Up only] Permission checkboxes
-|   |   +-- Allow location access
-|   |   +-- Receive push notifications
-|   |   +-- Share anonymized data
-|   +-- Submit button
-+-- Link to switch modes
+Behavior:
+1. Get click coordinates (lat, lng)
+2. Sample georaster at that point
+3. Apply rain factor adjustment (same formula as rendering)
+4. Show popup/tooltip with:
+   - "Flood Risk Score: 0.73"
+   - Risk level label (Low/Moderate/High/Severe)
+   - Color indicator matching the ramp
 ```
 
-This is UI-ready; backend integration with Supabase can be added later.
+Implementation:
+- Store georaster reference in state after loading
+- Add click handler to map
+- Use `georaster.getValueAtPoint()` or calculate from pixel coordinates
+- Display result in Leaflet popup or custom overlay
 
----
-
-### 4. Dashboard Page (`/dashboard`)
-
-Consolidates all data-dependent sections moved from landing:
+### 6. Minimal Floating Header
 
 ```text
-/dashboard
-+-- Header (with navigation back to home)
-+-- Risk Breakdown section (from landing)
-|   +-- Live model weights with animated bars
-|   +-- Current score card
-|   +-- Explainability card
-+-- Alerts section (from landing)
-|   +-- Notification stream
-|   +-- Delivery/Actions info cards
-+-- Analytics section (from landing)
-|   +-- Weekly trend chart
-|   +-- Rainfall vs elevation
-|   +-- City clustering
-+-- Emergency Button (bottom-right)
++------------------------------------------+
+|  ← Back   |   AquaLens Map               |
++------------------------------------------+
 ```
 
----
-
-## Updated Landing Page
-
-### Navigation (TopNav) Changes
-
-| Current | After |
-|---------|-------|
-| Anchor links (#map, #features, #risk, #alerts, #analytics) | **Removed entirely** |
-| "Launch Prototype" button | **Removed** |
-| "How It Works" button | **Removed** |
-| --- | **"Login"** button (links to `/auth?mode=login`) |
-| --- | **"Sign Up"** button (links to `/auth`) |
-
-### Hero Section Changes
-
-| Current | After |
-|---------|-------|
-| "Launch Dashboard" links to `/prototype` | Links to `/map` |
-| "Risk model breakdown" anchor link | Links to `/dashboard` |
-
-### Route Planner Section Changes
-
-Replace the full-screen `RoutePlanner` with a compact `RoutePreview`:
-
-| Aspect | Before | After |
-|--------|--------|-------|
-| Height | Full section (~80vh) | Compact card (~300-400px) |
-| Map Visualization | Large with full SVG routes | Smaller, simplified preview |
-| Vehicle Animation | Full path animation | Removed |
-| Legend | 3 separate cards | Inline compact legend |
-| CTA | None | "Try Route Planner" button links to `/routes` |
-
-**New RoutePreview Structure:**
-```text
-RoutePreview Section
-+-- SectionTitle (adjusted copy)
-+-- Glassmorphism Card Container
-    +-- Grid Layout (2 columns on lg, 1 on mobile)
-        +-- Left: Mini Route Animation
-        |   +-- Simplified SVG with 2 route paths
-        |   +-- Start/End markers
-        |   +-- Subtle animation
-        +-- Right: Description + CTA
-            +-- Heading: "Plan Safe Routes"
-            +-- Description text
-            +-- Inline legend (colored dots + labels)
-            +-- Button: "Try Route Planner" links to /routes
-```
-
-### Sections Removed from Landing
-
-- **RiskBreakdown** - moved to `/dashboard`
-- **Alerts** - moved to `/dashboard`
-- **Analytics** - moved to `/dashboard`
+- Fixed top position, glassmorphism styling
+- Back link to home page
+- Subtle and doesn't obstruct map
 
 ---
 
-## Emergency Button Component
+## State Management
 
-A fixed floating button for all key pages:
-
-| Aspect | Details |
-|--------|---------|
-| Design | Circular red button, phone icon, pulse animation |
-| Styling | Glassmorphism with red accent background |
-| Behavior | On click triggers `tel:112` (configurable helpline) |
-| Tooltip | Shows "Emergency Helpline" on hover |
-| Placement | Map, Routes, Dashboard pages (bottom-right corner) |
-
----
-
-## Routing Updates (App.tsx)
-
-Add new routes:
+Track these values in the main component:
 
 ```text
-/         -> Index (landing page)
-/map      -> Map (interactive Leaflet map)
-/routes   -> Routes (route guidance page)
-/auth     -> Auth (login/signup page)
-/dashboard -> Dashboard (risk, alerts, analytics)
-/prototype -> Prototype (existing, kept but unlinked)
-*         -> NotFound
+- rainFactor: number (normalized 0-1)
+- rain24h: number (cumulative mm)
+- rainMax: number (peak hourly mm)
+- georasterRef: any (for click queries)
+- userLocation: [lat, lng] | null
+- clickedScore: { lat, lng, score, level } | null
 ```
 
 ---
 
-## CSS Updates (index.css)
+## File Changes
 
-Import Leaflet styles at top of file:
+| File | Changes |
+|------|---------|
+| `src/pages/Map.tsx` | Major updates - styling, new features |
 
-```css
-@import "leaflet/dist/leaflet.css";
-```
+### Detailed Changes to Map.tsx
 
-Also include fix for Leaflet's default marker icon issue in bundlers.
+1. **Imports**: Add Lucide icons (CloudRain, Droplets, Compass, ArrowLeft), EmergencyButton component, Link from react-router-dom
+
+2. **State additions**:
+   - `rain24h` - total 24h rainfall in mm
+   - `rainMax` - peak hourly rainfall in mm
+   - `georasterRef` - reference to loaded georaster
+   - `userLocation` - stored geolocation coordinates
+   - `clickedFloodInfo` - clicked pixel flood score info
+
+3. **FloodRasterLayer updates**:
+   - Calculate and pass 24h sum and max values
+   - Store georaster reference for click queries
+   - Add map click handler for pixel querying
+
+4. **New components**:
+   - `RecenterButton` - glassmorphism button with Compass icon
+   - `FloatingHeader` - minimal back link and title
+   - `FloodScorePopup` - displays clicked pixel info
+
+5. **InfoPanel updates**:
+   - fs-glass-strong styling
+   - Three rain statistics with icons
+   - Better typography and layout
+
+6. **LegendPanel updates**:
+   - fs-glass-strong styling
+   - Improved spacing and rounded corners
+
+7. **Main component updates**:
+   - Include EmergencyButton
+   - Include RecenterButton
+   - Include FloatingHeader
+   - Geolocation request on mount
 
 ---
 
-## Implementation Order
+## Visual Layout
 
-1. Install `leaflet`, `react-leaflet`, `@types/leaflet`
-2. Import Leaflet CSS in `src/index.css`
-3. Create `EmergencyButton.tsx` component
-4. Create `Dashboard.tsx` page (move Risk, Alerts, Analytics from landing)
-5. Create `Map.tsx` page with Leaflet integration + geolocation
-6. Create `Routes.tsx` page with input section and mock route results
-7. Create `Auth.tsx` page with login/signup UI and permission checkboxes
-8. Update `FloodShieldLanding.tsx`:
-   - Remove Risk Breakdown, Alerts, Analytics sections
-   - Remove all anchor links from TopNav
-   - Add Login/Sign Up buttons to TopNav
-   - Update Hero CTA links (/map and /dashboard)
-   - Replace `RoutePlanner` with compact `RoutePreview`
-9. Update `App.tsx` with new routes
+```text
++----------------------------------------------------------+
+|  [← Back]  AquaLens Map                    (header bar)  |
++----------------------------------------------------------+
+|                                                          |
+|  +----------------+              +------------------+    |
+|  | AquaLens Live  |              |    Flood Risk    |    |
+|  | -------------- |              | ○ Low            |    |
+|  | ☁ Normalized   |              | ○ Moderate       |    |
+|  |   65%          |              | ○ High           |    |
+|  | 💧 24h Rain    |              | ○ Severe         |    |
+|  |   12.4 mm      |              +------------------+    |
+|  | ⚡ Peak        |                                      |
+|  |   8.2 mm       |                                      |
+|  +----------------+                                      |
+|                                                          |
+|                    [Map Content]                         |
+|                                                          |
+|           +------------------------+                     |
+|           | Flood Score: 0.73      | (click popup)      |
+|           | Risk Level: High       |                     |
+|           +------------------------+                     |
+|                                                          |
+|  +--------+                                   +-------+  |
+|  |  ◎     |                                   |  📞   |  |
+|  +--------+                                   +-------+  |
+|  (recenter)                                  (emergency) |
++----------------------------------------------------------+
+```
 
 ---
 
 ## Technical Notes
 
-- **Leaflet Marker Icons**: Will include bundler workaround for default marker icons
-- **Geolocation API**: Uses `navigator.geolocation.getCurrentPosition()` with proper error handling and fallback
-- **Dashboard Components**: Sections moved as-is from landing, can be enhanced with real data later
-- **Prototype Route**: `/prototype` remains accessible but unlinked from navigation
-- **Emergency Tel Link**: Works natively on mobile, may show system dialog on desktop
-- **State Management**: Route inputs use React useState; can add react-hook-form later
-- **Animations**: Reuse existing useInViewOnce hook and CSS transitions
-- **Styling**: Consistent with existing fs-glass, fs-glass-strong classes
+### Georaster Click Query
+
+The georaster library provides methods to query pixel values:
+- Use `georaster.toCanvas()` approach or
+- Calculate pixel coordinates from lat/lng using georaster bounds
+- Sample the raster values array directly
+
+Formula to get pixel indices:
+```
+pixelX = (lng - xmin) / pixelWidth
+pixelY = (ymax - lat) / pixelHeight
+value = georaster.values[0][Math.floor(pixelY)][Math.floor(pixelX)]
+```
+
+### Geolocation Flow
+
+1. On component mount, request geolocation
+2. If granted, store coordinates in state
+3. Optionally center map on user location
+4. Recenter button uses stored location
+
+### Rain Data Extraction
+
+From Open-Meteo API response:
+- `rain.hourly.rain` is array of 24 hourly values
+- Sum all values for 24h total
+- Max of array for peak value
+- Current normalization stays (maxRain / 20, capped at 1)
