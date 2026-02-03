@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { MapContainer, TileLayer, useMap, useMapEvents, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvents, Popup, Marker, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
@@ -122,6 +122,65 @@ function MapClickHandler({
   return null;
 }
 
+/* ---------------- Current Location Marker ---------------- */
+
+function CurrentLocationMarker({ position }: { position: [number, number] }) {
+  return (
+    <>
+      {/* Outer pulsing ring */}
+      <CircleMarker
+        center={position}
+        radius={24}
+        pathOptions={{
+          color: "hsl(217, 92%, 56%)",
+          fillColor: "hsl(217, 92%, 56%)",
+          fillOpacity: 0.15,
+          weight: 1,
+          className: "animate-pulse",
+        }}
+      />
+      {/* Middle ring */}
+      <CircleMarker
+        center={position}
+        radius={14}
+        pathOptions={{
+          color: "hsl(217, 92%, 56%)",
+          fillColor: "hsl(217, 92%, 56%)",
+          fillOpacity: 0.25,
+          weight: 1,
+        }}
+      />
+      {/* Inner dot */}
+      <CircleMarker
+        center={position}
+        radius={6}
+        pathOptions={{
+          color: "white",
+          fillColor: "hsl(217, 92%, 56%)",
+          fillOpacity: 1,
+          weight: 2,
+        }}
+      />
+    </>
+  );
+}
+
+/* ---------------- Auto Zoom to Location ---------------- */
+
+function AutoZoomToLocation({ userLocation }: { userLocation: [number, number] | null }) {
+  const map = useMap();
+  const hasZoomed = useRef(false);
+
+  useEffect(() => {
+    if (userLocation && !hasZoomed.current) {
+      hasZoomed.current = true;
+      map.flyTo(userLocation, 14, { duration: 1.5 });
+    }
+  }, [userLocation, map]);
+
+  return null;
+}
+
 /* ---------------- Recenter Control ---------------- */
 
 function RecenterControl({ userLocation }: { userLocation: [number, number] | null }) {
@@ -130,7 +189,7 @@ function RecenterControl({ userLocation }: { userLocation: [number, number] | nu
 
   const handleRecenter = () => {
     const target = userLocation || defaultCenter;
-    map.flyTo(target, 13, { duration: 1 });
+    map.flyTo(target, 14, { duration: 1 });
   };
 
   return (
@@ -366,6 +425,10 @@ export default function FloodMap() {
             rainFactor={rainData.rainFactor}
             onFloodClick={setClickedFloodInfo}
           />
+
+          <AutoZoomToLocation userLocation={userLocation} />
+
+          {userLocation && <CurrentLocationMarker position={userLocation} />}
 
           <RecenterControl userLocation={userLocation} />
 
