@@ -139,10 +139,10 @@ function HeroOrb() {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     const rotateX = ((y - centerY) / centerY) * -12;
     const rotateY = ((x - centerX) / centerX) * 12;
-    
+
     setTilt({ rotateX, rotateY });
   };
 
@@ -151,14 +151,14 @@ function HeroOrb() {
   };
 
   return (
-    <div 
+    <div
       ref={cardRef}
       className="relative mx-auto aspect-square w-full max-w-[520px]"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ perspective: "1000px" }}
     >
-      <div 
+      <div
         className="relative w-full h-full transition-transform duration-200 ease-out"
         style={{
           transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
@@ -172,17 +172,17 @@ function HeroOrb() {
         {/* Main glass card with flood map */}
         <div className="absolute inset-6 rounded-[2rem] fs-glass-strong overflow-hidden">
           {/* Flood map image */}
-          <img 
-            src={floodMapImage} 
-            alt="Hyderabad Flood Risk Map" 
+          <img
+            src={floodMapImage}
+            alt="Hyderabad Flood Risk Map"
             className="absolute inset-0 w-full h-full object-cover opacity-90"
           />
-          
+
           {/* Glass overlay for depth */}
           <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-transparent to-background/30" />
-          
+
           {/* Subtle grid overlay */}
-          <div 
+          <div
             className="absolute inset-0 opacity-20"
             style={{
               backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
@@ -196,10 +196,7 @@ function HeroOrb() {
         </div>
 
         {/* Floating cards with enhanced glass effect */}
-        <div 
-          className="absolute -left-4 top-10 w-48 animate-float-y"
-          style={{ transform: "translateZ(40px)" }}
-        >
+        <div className="absolute -left-4 top-10 w-48 animate-float-y" style={{ transform: "translateZ(40px)" }}>
           <div className="fs-glass-strong rounded-2xl p-4 backdrop-blur-xl border border-white/20 shadow-elev">
             <p className="text-xs text-muted-foreground">Rainfall intensity</p>
             <p className="mt-1 text-lg font-semibold tracking-tight">18 mm/hr</p>
@@ -209,7 +206,7 @@ function HeroOrb() {
           </div>
         </div>
 
-        <div 
+        <div
           className="absolute -right-4 bottom-10 w-52 animate-float-y"
           style={{ transform: "translateZ(60px)", animationDelay: "0.5s" }}
         >
@@ -221,7 +218,7 @@ function HeroOrb() {
         </div>
 
         {/* Additional floating element for depth */}
-        <div 
+        <div
           className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-40 animate-float-y-soft"
           style={{ transform: "translateX(-50%) translateZ(30px)", animationDelay: "1s" }}
         >
@@ -249,10 +246,10 @@ function MapPreview() {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     const rotateX = ((y - centerY) / centerY) * -8;
     const rotateY = ((x - centerX) / centerX) * 8;
-    
+
     setTilt({ rotateX, rotateY });
   };
 
@@ -270,14 +267,14 @@ function MapPreview() {
         />
 
         <div ref={ref} className="mt-12">
-          <div 
+          <div
             ref={cardRef}
             className="relative"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ perspective: "1200px" }}
           >
-            <div 
+            <div
               className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-elev transition-transform duration-200 ease-out"
               style={{
                 transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
@@ -293,17 +290,17 @@ function MapPreview() {
                 >
                   <div className="aspect-[16/9] rounded-[1.5rem] fs-glass-strong overflow-hidden relative">
                     {/* Flood map image */}
-                    <img 
-                      src={floodMapPreview} 
-                      alt="Hyderabad Flood Risk Map" 
+                    <img
+                      src={floodMapPreview}
+                      alt="Hyderabad Flood Risk Map"
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                    
+
                     {/* Glass overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/20" />
-                    
+
                     {/* Subtle grid overlay */}
-                    <div 
+                    <div
                       className="absolute inset-0 opacity-10"
                       style={{
                         backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px),
@@ -311,12 +308,15 @@ function MapPreview() {
                         backgroundSize: "50px 50px",
                       }}
                     />
-                    
+
                     {/* Location pin */}
                     <div className="absolute left-[54%] top-[48%]" style={{ transform: "translateZ(30px)" }}>
                       <div className="relative">
                         <div className="absolute -inset-6 rounded-full border-2 border-primary/50 animate-ripple" />
-                        <div className="absolute -inset-4 rounded-full border border-primary/30 animate-ripple" style={{ animationDelay: "0.3s" }} />
+                        <div
+                          className="absolute -inset-4 rounded-full border border-primary/30 animate-ripple"
+                          style={{ animationDelay: "0.3s" }}
+                        />
                         <div className="grid size-12 place-items-center rounded-full bg-background/80 border-2 border-primary/60 shadow-elev backdrop-blur-sm">
                           <MapPin className="size-6 text-primary" />
                         </div>
@@ -368,9 +368,21 @@ function Row({ label, value }: { label: string; value: string }) {
 
 function Features() {
   const features: Feature[] = [
-    { title: "Real-Time Flood Detection", desc: "Minute-by-minute risk updates based on live precipitation signals.", icon: <Shield /> },
-    { title: "Rainfall Intelligence Engine", desc: "Continuous mm/hr updates with storm trajectory inference.", icon: <Waves /> },
-    { title: "Elevation & Terrain Analysis", desc: "Slope, basins and flow paths from elevation models.", icon: <Layers /> },
+    {
+      title: "Real-Time Flood Detection",
+      desc: "Minute-by-minute risk updates based on live precipitation signals.",
+      icon: <Shield />,
+    },
+    {
+      title: "Rainfall Intelligence Engine",
+      desc: "Continuous mm/hr updates with storm trajectory inference.",
+      icon: <Waves />,
+    },
+    {
+      title: "Elevation & Terrain Analysis",
+      desc: "Slope, basins and flow paths from elevation models.",
+      icon: <Layers />,
+    },
     { title: "Water Body Proximity", desc: "Rivers, lakes and drainage adjacency weighting.", icon: <MapPin /> },
     { title: "Historical Hotspot Mapping", desc: "Learned flood patterns + seasonal clustering.", icon: <BarChart3 /> },
     { title: "Safe Route Planner", desc: "Avoid flood zones with real-time detours.", icon: <ArrowRight /> },
@@ -427,10 +439,10 @@ function RoutePreview() {
     const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     const rotateX = ((y - centerY) / centerY) * -6;
     const rotateY = ((x - centerX) / centerX) * 6;
-    
+
     setTilt({ rotateX, rotateY });
   };
 
@@ -448,14 +460,14 @@ function RoutePreview() {
         />
 
         <div ref={ref} className="mt-12">
-          <div 
+          <div
             ref={cardRef}
             className="relative"
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             style={{ perspective: "1200px" }}
           >
-            <div 
+            <div
               className="fs-glass-strong rounded-[2rem] p-6 sm:p-8 transition-transform duration-200 ease-out"
               style={{
                 transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
@@ -464,21 +476,21 @@ function RoutePreview() {
             >
               <div className="grid gap-8 lg:grid-cols-2 items-center">
                 {/* Route map image */}
-                <div 
+                <div
                   className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border/60 shadow-elev"
                   style={{ transform: "translateZ(20px)" }}
                 >
-                  <img 
-                    src={routeMapPreview} 
-                    alt="Route Planning Map" 
+                  <img
+                    src={routeMapPreview}
+                    alt="Route Planning Map"
                     className="absolute inset-0 w-full h-full object-cover"
                   />
-                  
+
                   {/* Glass overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/15" />
-                  
+
                   {/* Subtle grid overlay */}
-                  <div 
+                  <div
                     className="absolute inset-0 opacity-5"
                     style={{
                       backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px),
@@ -492,14 +504,11 @@ function RoutePreview() {
                 </div>
 
                 {/* Description + CTA */}
-                <div 
-                  className="space-y-8"
-                  style={{ transform: "translateZ(10px)" }}
-                >
+                <div className="space-y-8" style={{ transform: "translateZ(10px)" }}>
                   <div className="space-y-4">
                     <h3 className="text-xl font-semibold tracking-tight">Navigate with confidence</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      Enter your source and destination to get multiple route options with real-time risk assessment. 
+                      Enter your source and destination to get multiple route options with real-time risk assessment.
                       Our algorithm compares flood zones, elevation, and drainage quality to recommend the safest path.
                     </p>
                   </div>
@@ -575,8 +584,8 @@ function Testimonial() {
           <p className="text-sm font-medium text-muted-foreground">Real-world story</p>
           <h3 className="mt-3 text-2xl font-semibold tracking-tight">"FloodShield saved my home."</h3>
           <p className="mt-4 max-w-3xl text-sm text-muted-foreground">
-            Ravi (Hyderabad) received an early warning as his neighborhood shifted into a Red Risk Zone. FloodShield guided him
-            to a safer route, helped him move valuables, and avoid the lowest roads before the water rose.
+            Ravi (Hyderabad) received an early warning as his neighborhood shifted into a Red Risk Zone. FloodShield
+            guided him to a safer route, helped him move valuables, and avoid the lowest roads before the water rose.
           </p>
         </div>
       </div>
@@ -599,10 +608,35 @@ function Footer() {
 
           <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-4">
             {[
-              { h: "Product", a: [{ label: "Map", to: "/map" }, { label: "Routes", to: "/routes" }, { label: "Dashboard", to: "/dashboard" }] },
-              { h: "Account", a: [{ label: "Login", to: "/auth?mode=login" }, { label: "Sign Up", to: "/auth" }] },
-              { h: "Contact", a: [{ label: "Sales", to: "#" }, { label: "Support", to: "#" }] },
-              { h: "Legal", a: [{ label: "Privacy", to: "#" }, { label: "Terms", to: "#" }] },
+              {
+                h: "Product",
+                a: [
+                  { label: "Map", to: "/map" },
+                  { label: "Routes", to: "/routes" },
+                  { label: "Dashboard", to: "/dashboard" },
+                ],
+              },
+              {
+                h: "Account",
+                a: [
+                  { label: "Login", to: "/auth?mode=login" },
+                  { label: "Sign Up", to: "/auth" },
+                ],
+              },
+              {
+                h: "Contact",
+                a: [
+                  { label: "Sales", to: "#" },
+                  { label: "Support", to: "#" },
+                ],
+              },
+              {
+                h: "Legal",
+                a: [
+                  { label: "Privacy", to: "#" },
+                  { label: "Terms", to: "#" },
+                ],
+              },
             ].map((col) => (
               <div key={col.h}>
                 <p className="font-semibold tracking-tight">{col.h}</p>
@@ -620,7 +654,9 @@ function Footer() {
           </div>
         </div>
 
-        <p className="mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} FloodShield. All rights reserved.</p>
+        <p className="mt-10 text-xs text-muted-foreground">
+          © {new Date().getFullYear()} FloodShield. All rights reserved.
+        </p>
       </div>
     </footer>
   );
@@ -636,7 +672,7 @@ export default function FloodShieldLanding() {
         <Features />
         <RoutePreview />
         <Tech />
-        <Testimonial />
+        {/* <Testimonial /> */}
       </main>
       <Footer />
     </div>
