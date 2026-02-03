@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BarChart3, Bell, Layers, MapPin, Shield, Waves } from "lucide-react";
-import { useMemo, useRef, type ReactNode } from "react";
+import { useMemo, useRef, useState, type ReactNode, type MouseEvent } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import floodMapImage from "@/assets/flood-map-hyderabad.png";
 
 type Feature = {
   title: string;
@@ -126,64 +127,108 @@ function Hero() {
 }
 
 function HeroOrb() {
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -12;
+    const rotateY = ((x - centerX) / centerX) * 12;
+    
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+  };
+
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[520px]">
-      <div className="absolute inset-0 rounded-[2.5rem] bg-primary/5 shadow-elev" />
+    <div 
+      ref={cardRef}
+      className="relative mx-auto aspect-square w-full max-w-[520px]"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ perspective: "1000px" }}
+    >
+      <div 
+        className="relative w-full h-full transition-transform duration-200 ease-out"
+        style={{
+          transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+          transformStyle: "preserve-3d",
+        }}
+      >
+        {/* Outer glow */}
+        <div className="absolute inset-0 rounded-[2.5rem] bg-primary/5 shadow-elev" />
+        <div className="absolute inset-0 rounded-[2.5rem] border border-border/60" />
 
-      <div className="absolute inset-0 rounded-[2.5rem] border border-border/60" />
+        {/* Main glass card with flood map */}
+        <div className="absolute inset-6 rounded-[2rem] fs-glass-strong overflow-hidden">
+          {/* Flood map image */}
+          <img 
+            src={floodMapImage} 
+            alt="Hyderabad Flood Risk Map" 
+            className="absolute inset-0 w-full h-full object-cover opacity-90"
+          />
+          
+          {/* Glass overlay for depth */}
+          <div className="absolute inset-0 bg-gradient-to-br from-background/20 via-transparent to-background/30" />
+          
+          {/* Subtle grid overlay */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px),
+                               linear-gradient(90deg, hsl(var(--foreground) / 0.05) 1px, transparent 1px)`,
+              backgroundSize: "40px 40px",
+            }}
+          />
 
-      {/* "3D earth / map" illusion */}
-      <div className="absolute inset-6 rounded-[2rem] fs-glass-strong overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5 opacity-70" />
-
-        <div className="absolute left-1/2 top-1/2 size-[86%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-border/70 shadow-float" />
-        <div className="absolute left-1/2 top-1/2 size-[78%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-background/40" />
-
-        {/* Continents */}
-        <div className="absolute left-[28%] top-[32%] h-16 w-24 rounded-[999px] bg-primary/15 blur-[0.2px]" />
-        <div className="absolute left-[48%] top-[52%] h-20 w-28 rotate-12 rounded-[999px] bg-[hsl(var(--brand-cyan)/0.18)] blur-[0.2px]" />
-        <div className="absolute left-[36%] top-[58%] h-10 w-16 -rotate-6 rounded-[999px] bg-[hsl(var(--brand-lilac)/0.18)] blur-[0.2px]" />
-
-        {/* Rain particles */}
-        <div className="absolute inset-0 opacity-70">
-          {Array.from({ length: 22 }).map((_, i) => (
-            <span
-              // eslint-disable-next-line react/no-array-index-key
-              key={i}
-              className="absolute h-8 w-[2px] rounded-full bg-foreground/10 animate-float-y-soft"
-              style={{
-                left: `${(i * 37) % 100}%`,
-                top: `${(i * 17) % 100}%`,
-                transform: `rotate(${(i % 2 ? 14 : -12)}deg)`,
-                animationDuration: `${6 + (i % 5)}s`,
-                animationDelay: `${(i % 7) * 0.2}s`,
-              }}
-            />
-          ))}
+          {/* Shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent opacity-60" />
         </div>
 
-        {/* Water ripple highlight */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute left-1/2 top-1/2 size-[64%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-foreground/10 animate-pulse-soft" />
-        </div>
-      </div>
-
-      {/* Floating cards */}
-      <div className="absolute -left-4 top-10 w-48 animate-float-y">
-        <div className="fs-glass rounded-2xl p-4">
-          <p className="text-xs text-muted-foreground">Rainfall intensity</p>
-          <p className="mt-1 text-lg font-semibold tracking-tight">18 mm/hr</p>
-          <div className="mt-3 h-2 rounded-full bg-secondary overflow-hidden">
-            <div className="h-full w-[72%] rounded-full bg-primary" />
+        {/* Floating cards with enhanced glass effect */}
+        <div 
+          className="absolute -left-4 top-10 w-48 animate-float-y"
+          style={{ transform: "translateZ(40px)" }}
+        >
+          <div className="fs-glass-strong rounded-2xl p-4 backdrop-blur-xl border border-white/20 shadow-elev">
+            <p className="text-xs text-muted-foreground">Rainfall intensity</p>
+            <p className="mt-1 text-lg font-semibold tracking-tight">18 mm/hr</p>
+            <div className="mt-3 h-2 rounded-full bg-secondary overflow-hidden">
+              <div className="h-full w-[72%] rounded-full bg-primary transition-all duration-500" />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="absolute -right-4 bottom-10 w-52 animate-float-y">
-        <div className="fs-glass rounded-2xl p-4">
-          <p className="text-xs text-muted-foreground">Risk score</p>
-          <p className="mt-1 text-lg font-semibold tracking-tight">82 / 100</p>
-          <p className="mt-1 text-xs text-muted-foreground">Live alert • Red zone nearby</p>
+        <div 
+          className="absolute -right-4 bottom-10 w-52 animate-float-y"
+          style={{ transform: "translateZ(60px)", animationDelay: "0.5s" }}
+        >
+          <div className="fs-glass-strong rounded-2xl p-4 backdrop-blur-xl border border-white/20 shadow-elev">
+            <p className="text-xs text-muted-foreground">Risk score</p>
+            <p className="mt-1 text-lg font-semibold tracking-tight">82 / 100</p>
+            <p className="mt-1 text-xs text-muted-foreground">Live alert • Red zone nearby</p>
+          </div>
+        </div>
+
+        {/* Additional floating element for depth */}
+        <div 
+          className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-40 animate-float-y-soft"
+          style={{ transform: "translateX(-50%) translateZ(30px)", animationDelay: "1s" }}
+        >
+          <div className="fs-glass rounded-xl p-3 backdrop-blur-lg border border-white/15">
+            <div className="flex items-center gap-2">
+              <div className="size-2 rounded-full bg-green-500 animate-pulse" />
+              <p className="text-xs font-medium">Live monitoring</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
