@@ -126,42 +126,17 @@ function MapClickHandler({
 
 function CurrentLocationMarker({ position }: { position: [number, number] }) {
   return (
-    <>
-      {/* Outer pulsing ring */}
-      <CircleMarker
-        center={position}
-        radius={24}
-        pathOptions={{
-          color: "hsl(217, 92%, 56%)",
-          fillColor: "hsl(217, 92%, 56%)",
-          fillOpacity: 0.15,
-          weight: 1,
-          className: "animate-pulse",
-        }}
-      />
-      {/* Middle ring */}
-      <CircleMarker
-        center={position}
-        radius={14}
-        pathOptions={{
-          color: "hsl(217, 92%, 56%)",
-          fillColor: "hsl(217, 92%, 56%)",
-          fillOpacity: 0.25,
-          weight: 1,
-        }}
-      />
-      {/* Inner dot */}
-      <CircleMarker
-        center={position}
-        radius={6}
-        pathOptions={{
-          color: "white",
-          fillColor: "hsl(217, 92%, 56%)",
-          fillOpacity: 1,
-          weight: 2,
-        }}
-      />
-    </>
+    <CircleMarker
+      center={position}
+      radius={10}
+      pathOptions={{
+        color: "white",
+        fillColor: "hsl(217, 92%, 56%)",
+        fillOpacity: 1,
+        weight: 3,
+        className: "animate-pulse",
+      }}
+    />
   );
 }
 
@@ -260,7 +235,6 @@ function FloodRasterLayer({
       });
 
       layer.addTo(map);
-      map.fitBounds(layer.getBounds());
     }
 
     loadRaster();
