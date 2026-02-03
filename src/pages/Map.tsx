@@ -353,7 +353,7 @@ export default function FloodMap() {
   return (
     <TooltipProvider>
       <div className="h-screen w-full relative">
-        <MapContainer center={[17.406, 78.477]} zoom={11} className="h-full w-full">
+        <MapContainer center={[17.406, 78.477]} zoom={11} zoomControl={false} className="h-full w-full">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
