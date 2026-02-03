@@ -5,6 +5,7 @@ import { NavLink } from "@/components/NavLink";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import floodMapImage from "@/assets/flood-map-hyderabad.png";
 import floodMapPreview from "@/assets/flood-map-preview.png";
+import routeMapPreview from "@/assets/route-map-preview.png";
 
 type Feature = {
   title: string;
@@ -416,6 +417,26 @@ function Features() {
 
 function RoutePreview() {
   const { ref, inView } = useInViewOnce<HTMLDivElement>();
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -6;
+    const rotateY = ((x - centerX) / centerX) * 6;
+    
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+  };
 
   return (
     <section className="py-20 sm:py-28">
@@ -427,98 +448,85 @@ function RoutePreview() {
         />
 
         <div ref={ref} className="mt-12">
-          <div className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
-            <div className="grid gap-8 lg:grid-cols-2 items-center">
-              {/* Mini route visualization */}
-              <div className="relative aspect-[4/3] rounded-2xl bg-background/50 border border-border/60 overflow-hidden">
-                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden>
-                  {/* Risk zone */}
-                  <ellipse cx="280" cy="140" rx="60" ry="45" fill="hsl(0 85% 55% / 0.15)" />
-                  
-                  {/* Safe route (green) */}
-                  <path
-                    d="M50 240 C 120 180, 160 220, 220 170 S 320 100, 370 80"
-                    fill="none"
-                    stroke="hsl(142 70% 45% / 0.85)"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeDasharray="12 8"
-                    style={{
-                      opacity: inView ? 1 : 0,
-                      transition: "opacity 800ms ease",
-                    }}
+          <div 
+            ref={cardRef}
+            className="relative"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{ perspective: "1200px" }}
+          >
+            <div 
+              className="fs-glass-strong rounded-[2rem] p-6 sm:p-8 transition-transform duration-200 ease-out"
+              style={{
+                transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+                transformStyle: "preserve-3d",
+              }}
+            >
+              <div className="grid gap-8 lg:grid-cols-2 items-center">
+                {/* Route map image */}
+                <div 
+                  className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border/60 shadow-elev"
+                  style={{ transform: "translateZ(20px)" }}
+                >
+                  <img 
+                    src={routeMapPreview} 
+                    alt="Route Planning Map" 
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                   
-                  {/* Risky route (yellow) */}
-                  <path
-                    d="M60 260 C 140 230, 180 260, 260 200 S 340 160, 380 120"
-                    fill="none"
-                    stroke="hsl(48 95% 55% / 0.75)"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                    strokeDasharray="8 8"
+                  {/* Glass overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/15" />
+                  
+                  {/* Subtle grid overlay */}
+                  <div 
+                    className="absolute inset-0 opacity-5"
                     style={{
-                      opacity: inView ? 1 : 0,
-                      transition: "opacity 1100ms ease",
+                      backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.1) 1px, transparent 1px),
+                                       linear-gradient(90deg, hsl(var(--foreground) / 0.1) 1px, transparent 1px)`,
+                      backgroundSize: "40px 40px",
                     }}
                   />
-                </svg>
-                
-                {/* Start marker */}
+
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
+                </div>
+
+                {/* Description + CTA */}
                 <div 
-                  className="absolute left-[10%] top-[78%]"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transition: "opacity 600ms ease",
-                  }}
+                  className="space-y-8"
+                  style={{ transform: "translateZ(10px)" }}
                 >
-                  <div className="size-5 rounded-full bg-green-500 border-2 border-background shadow-lg" />
-                </div>
-                
-                {/* End marker */}
-                <div 
-                  className="absolute left-[90%] top-[24%]"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transition: "opacity 900ms ease",
-                  }}
-                >
-                  <div className="size-5 rounded-full bg-primary border-2 border-background shadow-lg" />
-                </div>
-              </div>
-
-              {/* Description + CTA */}
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold tracking-tight">Navigate with confidence</h3>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    Enter your source and destination to get multiple route options with real-time risk assessment. 
-                    Our algorithm compares flood zones, elevation, and drainage quality to recommend the safest path.
-                  </p>
-                </div>
-
-                {/* Inline legend */}
-                <div className="flex flex-wrap gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="h-1 w-5 rounded-full bg-[hsl(142_70%_45%)]" />
-                    <span className="text-muted-foreground">Safe route</span>
+                  <div className="space-y-4">
+                    <h3 className="text-xl font-semibold tracking-tight">Navigate with confidence</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Enter your source and destination to get multiple route options with real-time risk assessment. 
+                      Our algorithm compares flood zones, elevation, and drainage quality to recommend the safest path.
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-1 w-5 rounded-full bg-[hsl(48_95%_55%)]" />
-                    <span className="text-muted-foreground">Faster (risky)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="size-3 rounded-full bg-red-500/25" />
-                    <span className="text-muted-foreground">Flood zone</span>
-                  </div>
-                </div>
 
-                <Button asChild variant="hero" size="pill" className="group">
-                  <NavLink to="/routes">
-                    Try Route Planner
-                    <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
-                  </NavLink>
-                </Button>
+                  {/* Inline legend */}
+                  <div className="flex flex-wrap gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="h-1 w-5 rounded-full bg-[hsl(142_70%_45%)]" />
+                      <span className="text-muted-foreground">Safe route</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-1 w-5 rounded-full bg-[hsl(48_95%_55%)]" />
+                      <span className="text-muted-foreground">Faster (risky)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="size-3 rounded-full bg-red-500/25" />
+                      <span className="text-muted-foreground">Flood zone</span>
+                    </div>
+                  </div>
+
+                  <Button asChild variant="hero" size="pill" className="group">
+                    <NavLink to="/routes">
+                      Try Route Planner
+                      <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+                    </NavLink>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
