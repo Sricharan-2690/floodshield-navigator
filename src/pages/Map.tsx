@@ -192,12 +192,16 @@ function FloodRasterLayer({
 
   useEffect(() => {
     let layer: any;
+    let isMounted = true;
 
     async function loadRaster() {
       /* GeoTIFF */
       const tif = await fetch("/data/partial_flood_score_250m.tif");
       const buffer = await tif.arrayBuffer();
       const georaster = await parseGeoraster(buffer);
+
+      // Check if component is still mounted and map is valid
+      if (!isMounted || !map || !map.getPane('overlayPane')) return;
 
       // Store reference for click queries
       georasterRef.current = georaster;
@@ -220,6 +224,7 @@ function FloodRasterLayer({
       const rainFactor = Math.min(rainMax / 20, 1); // 20mm cap
       const alpha = 0.8;
 
+      if (!isMounted) return;
       setRainData({ rainFactor, rain24h, rainMax });
 
       layer = new GeoRasterLayer({
@@ -234,13 +239,23 @@ function FloodRasterLayer({
         },
       });
 
-      layer.addTo(map);
+      // Final check before adding to map
+      if (isMounted && map && map.getPane('overlayPane')) {
+        layer.addTo(map);
+      }
     }
 
     loadRaster();
 
     return () => {
-      if (layer) map.removeLayer(layer);
+      isMounted = false;
+      if (layer && map) {
+        try {
+          map.removeLayer(layer);
+        } catch (e) {
+          // Map may already be unmounted
+        }
+      }
     };
   }, [map, setRainData, georasterRef]);
 
