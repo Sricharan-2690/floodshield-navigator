@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, type ReactNode, type MouseEvent } from "reac
 import { NavLink } from "@/components/NavLink";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import floodMapImage from "@/assets/flood-map-hyderabad.png";
+import floodMapPreview from "@/assets/flood-map-preview.png";
 
 type Feature = {
   title: string;
@@ -237,6 +238,26 @@ function HeroOrb() {
 
 function MapPreview() {
   const { ref, inView } = useInViewOnce<HTMLDivElement>();
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = ((y - centerY) / centerY) * -8;
+    const rotateY = ((x - centerX) / centerX) * 8;
+    
+    setTilt({ rotateX, rotateY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 });
+  };
 
   return (
     <section id="map" className="py-20 sm:py-28">
@@ -248,89 +269,83 @@ function MapPreview() {
         />
 
         <div ref={ref} className="mt-12">
-          <div className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-elev">
-            <div className="absolute inset-0 bg-primary/5 opacity-50" />
-            <div className="absolute inset-0 bg-fs-heat opacity-70" />
-
-            {/* Elevation shading */}
-            <div className="absolute inset-0 opacity-40">
-              <div className="absolute left-[10%] top-[18%] h-40 w-60 rotate-[-18deg] rounded-[999px] bg-foreground/10 blur-2xl" />
-              <div className="absolute left-[56%] top-[48%] h-44 w-72 rotate-[12deg] rounded-[999px] bg-foreground/10 blur-2xl" />
-            </div>
-
-            {/* Route lines */}
-            <svg
-              className="absolute inset-0 h-full w-full"
-              viewBox="0 0 1200 700"
-              preserveAspectRatio="none"
-              aria-hidden="true"
+          <div 
+            ref={cardRef}
+            className="relative"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            style={{ perspective: "1200px" }}
+          >
+            <div 
+              className="relative overflow-hidden rounded-[2rem] border border-border/60 bg-card shadow-elev transition-transform duration-200 ease-out"
+              style={{
+                transform: `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+                transformStyle: "preserve-3d",
+              }}
             >
-              <path
-                d="M140 520 C 300 420, 420 520, 520 410 S 780 300, 1040 240"
-                fill="none"
-                stroke="hsl(var(--primary) / 0.65)"
-                strokeWidth="6"
-                strokeLinecap="round"
-                strokeDasharray="12 14"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transition: "opacity 900ms ease",
-                }}
-              />
-              <path
-                d="M160 560 C 340 520, 420 590, 560 530 S 820 470, 1040 360"
-                fill="none"
-                stroke="hsl(var(--brand-cyan) / 0.60)"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeDasharray="8 12"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transition: "opacity 1200ms ease",
-                }}
-              />
-            </svg>
-
-            <div className="relative grid gap-6 p-6 sm:p-10 lg:grid-cols-12">
-              <div
-                className={
-                  "lg:col-span-8 transition-all duration-700 " +
-                  (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
-                }
-              >
-                <div className="aspect-[16/9] rounded-[1.5rem] fs-glass-strong overflow-hidden">
-                  <div className="absolute inset-0" />
-                  {/* location pin */}
-                  <div className="relative h-full">
-                    <div className="absolute left-[54%] top-[48%]">
+              <div className="relative grid gap-6 p-6 sm:p-10 lg:grid-cols-12">
+                <div
+                  className={
+                    "lg:col-span-8 transition-all duration-700 " +
+                    (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
+                  }
+                >
+                  <div className="aspect-[16/9] rounded-[1.5rem] fs-glass-strong overflow-hidden relative">
+                    {/* Flood map image */}
+                    <img 
+                      src={floodMapPreview} 
+                      alt="Hyderabad Flood Risk Map" 
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    
+                    {/* Glass overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-background/10 via-transparent to-background/20" />
+                    
+                    {/* Subtle grid overlay */}
+                    <div 
+                      className="absolute inset-0 opacity-10"
+                      style={{
+                        backgroundImage: `linear-gradient(hsl(var(--foreground) / 0.08) 1px, transparent 1px),
+                                         linear-gradient(90deg, hsl(var(--foreground) / 0.08) 1px, transparent 1px)`,
+                        backgroundSize: "50px 50px",
+                      }}
+                    />
+                    
+                    {/* Location pin */}
+                    <div className="absolute left-[54%] top-[48%]" style={{ transform: "translateZ(30px)" }}>
                       <div className="relative">
-                        <div className="absolute -inset-4 rounded-full border border-primary/40 animate-ripple" />
-                        <div className="grid size-10 place-items-center rounded-full bg-background/70 border border-border/70 shadow-float">
-                          <MapPin className="size-5 text-foreground" />
+                        <div className="absolute -inset-6 rounded-full border-2 border-primary/50 animate-ripple" />
+                        <div className="absolute -inset-4 rounded-full border border-primary/30 animate-ripple" style={{ animationDelay: "0.3s" }} />
+                        <div className="grid size-12 place-items-center rounded-full bg-background/80 border-2 border-primary/60 shadow-elev backdrop-blur-sm">
+                          <MapPin className="size-6 text-primary" />
                         </div>
                       </div>
                     </div>
+
+                    {/* Shine effect */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none" />
                   </div>
                 </div>
-              </div>
 
-              <div
-                className={
-                  "lg:col-span-4 transition-all duration-700 delay-150 " +
-                  (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
-                }
-              >
-                <div className="fs-glass-strong rounded-[1.5rem] p-5">
-                  <p className="text-xs font-medium text-muted-foreground">Top Info Card</p>
-                  <div className="mt-4 space-y-3">
-                    <Row label="Rainfall" value="18 mm/hr" />
-                    <Row label="Risk score" value="82 / 100" />
-                    <Row label="Live alert" value="Red zone nearby" />
-                    <Row label="Forecast" value="Next hour +12%" />
+                <div
+                  className={
+                    "lg:col-span-4 transition-all duration-700 delay-150 " +
+                    (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
+                  }
+                  style={{ transform: "translateZ(20px)" }}
+                >
+                  <div className="fs-glass-strong rounded-[1.5rem] p-5 backdrop-blur-xl border border-white/20">
+                    <p className="text-xs font-medium text-muted-foreground">Top Info Card</p>
+                    <div className="mt-4 space-y-3">
+                      <Row label="Rainfall" value="18 mm/hr" />
+                      <Row label="Risk score" value="82 / 100" />
+                      <Row label="Live alert" value="Red zone nearby" />
+                      <Row label="Forecast" value="Next hour +12%" />
+                    </div>
+                    <Button asChild variant="glass" size="pill" className="mt-5 w-full">
+                      <NavLink to="/map">Open Interactive Map</NavLink>
+                    </Button>
                   </div>
-                  <Button asChild variant="glass" size="pill" className="mt-5 w-full">
-                    <NavLink to="/map">Open Interactive Map</NavLink>
-                  </Button>
                 </div>
               </div>
             </div>
