@@ -18,11 +18,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 function lerpColor(c1: number[], c2: number[], t: number) {
-  return [
-    Math.round(lerp(c1[0], c2[0], t)),
-    Math.round(lerp(c1[1], c2[1], t)),
-    Math.round(lerp(c1[2], c2[2], t)),
-  ];
+  return [Math.round(lerp(c1[0], c2[0], t)), Math.round(lerp(c1[1], c2[1], t)), Math.round(lerp(c1[2], c2[2], t))];
 }
 
 function rgbToCss([r, g, b]: number[]) {
@@ -102,7 +98,7 @@ function MapClickHandler({
 
       // Get raw value
       const rawValue = values?.[0]?.[pixelY]?.[pixelX];
-      
+
       if (rawValue == null || rawValue === 0) {
         onFloodClick(null);
         return;
@@ -128,11 +124,7 @@ function MapClickHandler({
 
 /* ---------------- Recenter Control ---------------- */
 
-function RecenterControl({
-  userLocation,
-}: {
-  userLocation: [number, number] | null;
-}) {
+function RecenterControl({ userLocation }: { userLocation: [number, number] | null }) {
   const map = useMap();
   const defaultCenter: [number, number] = [17.406, 78.477];
 
@@ -182,7 +174,7 @@ function FloodRasterLayer({
           "?latitude=17.406" +
           "&longitude=78.477" +
           "&hourly=rain" +
-          "&forecast_days=1"
+          "&forecast_days=1",
       );
 
       const rain = await rainRes.json();
@@ -255,10 +247,7 @@ function LegendPanel() {
           ["Severe", "rgb(200,0,0)"],
         ].map(([label, color]) => (
           <div key={label} className="flex items-center gap-3 text-sm text-foreground/80">
-            <span
-              className="h-3 w-6 rounded-full"
-              style={{ background: color }}
-            />
+            <span className="h-3 w-6 rounded-full" style={{ background: color }} />
             {label}
           </div>
         ))}
@@ -272,7 +261,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
     <div className="absolute left-4 top-20 z-[1000] fs-glass-strong rounded-2xl p-4 min-w-[180px]">
       <div className="font-semibold text-foreground mb-1">AquaLens Live</div>
       <div className="text-xs text-muted-foreground mb-3">Rainfall Impact</div>
-      
+
       <div className="space-y-3">
         <div className="flex items-center gap-3">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
@@ -292,9 +281,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">24h Rain</div>
-            <div className="font-mono text-sm font-semibold text-foreground">
-              {rainData.rain24h.toFixed(1)} mm
-            </div>
+            <div className="font-mono text-sm font-semibold text-foreground">{rainData.rain24h.toFixed(1)} mm</div>
           </div>
         </div>
 
@@ -304,9 +291,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Peak Hour</div>
-            <div className="font-mono text-sm font-semibold text-foreground">
-              {rainData.rainMax.toFixed(1)} mm
-            </div>
+            <div className="font-mono text-sm font-semibold text-foreground">{rainData.rainMax.toFixed(1)} mm</div>
           </div>
         </div>
       </div>
@@ -322,10 +307,7 @@ function FloodScoreDisplay({ info }: { info: ClickedFloodInfo }) {
       <div className="p-1 min-w-[140px]">
         <div className="text-xs text-muted-foreground mb-1">Flood Risk Score</div>
         <div className="flex items-center gap-2 mb-2">
-          <span
-            className="size-3 rounded-full"
-            style={{ background: info.color }}
-          />
+          <span className="size-3 rounded-full" style={{ background: info.color }} />
           <span className="font-mono text-lg font-bold">{info.score.toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -363,7 +345,7 @@ export default function FloodMap() {
         },
         () => {
           // Silently fail, use default center
-        }
+        },
       );
     }
   }, []);
@@ -371,21 +353,14 @@ export default function FloodMap() {
   return (
     <TooltipProvider>
       <div className="h-screen w-full relative">
-        <MapContainer
-          center={[17.406, 78.477]}
-          zoom={11}
-          className="h-full w-full"
-        >
+        <MapContainer center={[17.406, 78.477]} zoom={11} className="h-full w-full">
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
 
-          <FloodRasterLayer 
-            setRainData={setRainData} 
-            georasterRef={georasterRef}
-          />
-          
+          <FloodRasterLayer setRainData={setRainData} georasterRef={georasterRef} />
+
           <MapClickHandler
             georasterRef={georasterRef}
             rainFactor={rainData.rainFactor}
