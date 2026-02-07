@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents, Popup, CircleMarker } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeft, CloudRain, Droplets, Locate } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
@@ -143,14 +143,13 @@ function FloodScoreDisplay({ info }: { info: ClickedFloodInfo }) {
 
 /* ---------- Nav Tabs ---------- */
 function ModeNavTabs() {
-  const navigate = useNavigate();
   return (
     <div className="fixed top-4 right-4 z-[1004]" style={{ marginTop: "3.5rem" }}>
       <div className="fs-glass-strong rounded-xl p-1 flex gap-1 shadow-elev">
-        <button onClick={() => navigate("/map/risk")}
+        <a href="/map/risk"
           className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-muted/50">
           <CloudRain className="size-4" /> Real-time Risk
-        </button>
+        </a>
         <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary text-primary-foreground shadow-sm">
           <Droplets className="size-4" /> Susceptibility
         </button>
