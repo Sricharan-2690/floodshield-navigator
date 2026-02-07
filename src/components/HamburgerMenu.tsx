@@ -15,9 +15,6 @@ import {
   BarChart3,
   Navigation,
   Calendar,
-  LogIn,
-  Smartphone,
-  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +24,6 @@ const NAV_ITEMS = [
   { label: "Dashboard", to: "/dashboard", icon: BarChart3 },
   { label: "Routes", to: "/routes", icon: Navigation },
   { label: "Rain Calendar", to: "/rain", icon: Calendar },
-  { label: "Login / Sign Up", to: "/auth", icon: LogIn },
 ];
 
 interface HamburgerMenuProps {
