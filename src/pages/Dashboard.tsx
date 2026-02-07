@@ -406,7 +406,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   ))}
                 </div>
               </div>
-              <div className="h-64" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 200ms" }}>
+              <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -453,7 +453,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   <p className="text-sm font-semibold tracking-tight">Cumulative Rainfall</p>
                   <p className="text-xs text-muted-foreground mt-1">Running total over the forecast window</p>
                 </div>
-                <div className="h-56" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 400ms" }}>
+                <div className="h-56">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={cumulativeData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <defs>
@@ -505,7 +505,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   <p className="text-sm font-semibold tracking-tight">Peak Hourly Intensity</p>
                   <p className="text-xs text-muted-foreground mt-1">Maximum rain rate per day (mm/hr)</p>
                 </div>
-                <div className="h-56" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 600ms" }}>
+                <div className="h-56">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
