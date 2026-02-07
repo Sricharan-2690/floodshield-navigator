@@ -298,7 +298,7 @@ function FloatingHeader() {
 
 function LegendPanel() {
   return (
-    <div className="absolute right-4 top-20 z-[1000] fs-glass-strong rounded-2xl p-4">
+    <div className="absolute right-4 top-40 z-[1000] fs-glass-strong rounded-2xl p-4">
       <div className="font-semibold text-foreground mb-3">Flood Risk</div>
       <div className="space-y-2">
         {[
