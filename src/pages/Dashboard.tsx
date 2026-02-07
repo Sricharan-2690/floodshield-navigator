@@ -1,12 +1,34 @@
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
-import { Waves, ArrowLeft, Bell, CloudRain, Droplets, CloudSun, Zap, TrendingUp, AlertTriangle, ShieldAlert } from "lucide-react";
+import {
+  Waves,
+  ArrowLeft,
+  Bell,
+  CloudRain,
+  Droplets,
+  CloudSun,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  ShieldAlert,
+} from "lucide-react";
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { useRainForecast, type DayRain } from "@/hooks/useRainForecast";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
-  AreaChart, Area, CartesianGrid, LineChart, Line, Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  AreaChart,
+  Area,
+  CartesianGrid,
+  LineChart,
+  Line,
+  Legend,
 } from "recharts";
 
 /* ---------- Helpers ---------- */
@@ -33,10 +55,7 @@ function getRiskScore(days: DayRain[]): number {
   const peakDay = Math.max(...days.map((d) => d.totalMm));
   const heavyDays = days.filter((d) => d.totalMm >= 15).length;
   // Weighted score: total matters, peak matters more, heavy day count matters
-  const score = Math.min(
-    Math.round((totalRain / days.length) * 8 + peakDay * 1.5 + heavyDays * 10),
-    100,
-  );
+  const score = Math.min(Math.round((totalRain / days.length) * 8 + peakDay * 1.5 + heavyDays * 10), 100);
   return Math.max(score, 5);
 }
 
@@ -88,7 +107,9 @@ function RiskBreakdown({ days, loading }: { days: DayRain[]; loading: boolean })
         />
 
         {loading ? (
-          <div className="mt-12"><DashboardSkeleton /></div>
+          <div className="mt-12">
+            <DashboardSkeleton />
+          </div>
         ) : (
           <div ref={ref} className="mt-12 grid gap-6 lg:grid-cols-12">
             <div className="lg:col-span-7 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
@@ -211,7 +232,7 @@ function generateAlerts(days: DayRain[]) {
   if (alerts.length === 0) {
     alerts.push({
       title: "No significant flood risk detected",
-      body: `Rainfall remains low over the next ${days.length} days. Stay prepared.`,
+      body: `Rainfall remains low over the next ${days.length} days.`,
       icon: CloudSun,
       severity: "info",
     });
@@ -245,7 +266,9 @@ function Alerts({ days, loading }: { days: DayRain[]; loading: boolean }) {
         />
 
         {loading ? (
-          <div className="mt-12"><DashboardSkeleton /></div>
+          <div className="mt-12">
+            <DashboardSkeleton />
+          </div>
         ) : (
           <div ref={ref} className="mt-12 grid gap-4 lg:grid-cols-12">
             <div className="lg:col-span-7 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
@@ -267,7 +290,9 @@ function Alerts({ days, loading }: { days: DayRain[]; loading: boolean }) {
                       style={{ transitionDelay: `${i * 120}ms` }}
                     >
                       <div className="flex items-start gap-3">
-                        <div className={`grid size-10 shrink-0 place-items-center rounded-2xl ${iconStyles[a.severity]}`}>
+                        <div
+                          className={`grid size-10 shrink-0 place-items-center rounded-2xl ${iconStyles[a.severity]}`}
+                        >
                           <Icon className="size-5" />
                         </div>
                         <div>
@@ -290,7 +315,8 @@ function Alerts({ days, loading }: { days: DayRain[]; loading: boolean }) {
               <div className="fs-glass rounded-[2rem] p-6">
                 <p className="text-xs text-muted-foreground">Alert Sources</p>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  Heavy rain thresholds, hourly peak intensity, multi-day saturation patterns, and cumulative volume analysis.
+                  Heavy rain thresholds, hourly peak intensity, multi-day saturation patterns, and cumulative volume
+                  analysis.
                 </p>
               </div>
             </div>
@@ -355,7 +381,9 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
         />
 
         {loading ? (
-          <div className="mt-12"><DashboardSkeleton /></div>
+          <div className="mt-12">
+            <DashboardSkeleton />
+          </div>
         ) : (
           <div ref={ref} className="mt-12 space-y-6">
             {/* ---- Daily Rain Bar Chart (full width) ---- */}
@@ -377,17 +405,10 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   ))}
                 </div>
               </div>
-              <div
-                className="h-64"
-                style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 200ms" }}
-              >
+              <div className="h-64" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 200ms" }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="hsl(var(--border))"
-                      vertical={false}
-                    />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
                     <XAxis
                       dataKey="name"
                       tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
@@ -431,10 +452,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   <p className="text-sm font-semibold tracking-tight">Cumulative Rainfall</p>
                   <p className="text-xs text-muted-foreground mt-1">Running total over the forecast window</p>
                 </div>
-                <div
-                  className="h-56"
-                  style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 400ms" }}
-                >
+                <div className="h-56" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 400ms" }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={cumulativeData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <defs>
@@ -486,10 +504,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
                   <p className="text-sm font-semibold tracking-tight">Peak Hourly Intensity</p>
                   <p className="text-xs text-muted-foreground mt-1">Maximum rain rate per day (mm/hr)</p>
                 </div>
-                <div
-                  className="h-56"
-                  style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 600ms" }}
-                >
+                <div className="h-56" style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 600ms" }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
