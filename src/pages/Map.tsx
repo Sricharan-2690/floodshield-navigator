@@ -72,14 +72,19 @@ interface ClickedFloodInfo {
 
 /** Compute the displayed flood score based on heatmap mode */
 function computeFloodScore(rawValue: number, rainFactor: number, mode: HeatmapMode): number {
+  // Clamp input first
+  const p = Math.max(0, Math.min(rawValue, 1));
+
+  // Always preserve max-risk pixels
+  if (p === 1) return 1;
+
   if (mode === "susceptibility") {
-    // Raw raster value as-is
-    return Math.max(0, Math.min(rawValue, 1));
+    return p;
   }
-  // Real-time: scale heavily by rain. Low rain → mostly green.
-  // Floor of 0.05 so water bodies still faintly show.
+
+  // Real-time mode
   const rainScale = Math.max(0.05, rainFactor);
-  return Math.min(rawValue * rainScale, 1);
+  return Math.min(p * rainScale, 1);
 }
 
 function MapClickHandler({
@@ -202,13 +207,9 @@ function FloodRasterLayer({
   const map = useMap();
   const rainDataRef = useRef<RainData>({ rainFactor: 0, rain24h: 0, rainMax: 0 });
   const georasterDataRef = useRef<any>(null);
-  const layerRef = useRef<any>(null);
-  const modeRef = useRef<HeatmapMode>(mode);
+  const [dataReady, setDataReady] = useState(0);
 
-  // Keep modeRef in sync so the rendering closure always reads the latest mode
-  modeRef.current = mode;
-
-  // Fetch raster + rain data once, then create the layer
+  // Fetch raster + rain data once
   useEffect(() => {
     let isMounted = true;
 
@@ -238,41 +239,43 @@ function FloodRasterLayer({
       rainDataRef.current = { rainFactor, rain24h, rainMax };
       setRainData({ rainFactor, rain24h, rainMax });
 
-      // Create the layer once — pixelValuesToColorFn reads modeRef at render time
-      const layer = new GeoRasterLayer({
-        georaster,
-        opacity: 0.6,
-        resolution: 512,
-        pixelValuesToColorFn: (values: number[]) => {
-          const p = values[0];
-          if (p == null) return null;
-          return floodColorRamp(
-            computeFloodScore(p, rainDataRef.current.rainFactor, modeRef.current),
-          );
-        },
-      });
-
-      if (!isMounted) return;
-      layerRef.current = layer;
-      layer.addTo(map);
+      // Signal data is ready → triggers layer creation
+      setDataReady((n) => n + 1);
     }
 
     loadData();
     return () => {
       isMounted = false;
-      if (layerRef.current) {
-        try { map.removeLayer(layerRef.current); } catch (_) {}
-        layerRef.current = null;
-      }
     };
-  }, [setRainData, georasterRef, map]);
+  }, [setRainData, georasterRef]);
 
-  // When mode changes, just redraw existing tiles — no remove/add needed
+  // Fully destroy & recreate the GeoRasterLayer on mode change or initial data load.
+  // This ensures ALL tiles (including cached ones) reflect the current mode.
   useEffect(() => {
-    if (layerRef.current) {
-      layerRef.current.redraw();
-    }
-  }, [mode]);
+    const georaster = georasterDataRef.current;
+    if (!georaster || !map || !map.getPane("overlayPane")) return;
+
+    const { rainFactor } = rainDataRef.current;
+
+    const layer = new GeoRasterLayer({
+      georaster,
+      opacity: 0.6,
+      resolution: 512,
+      pixelValuesToColorFn: (values: number[]) => {
+        const p = values[0];
+        if (p == null) return null;
+        return floodColorRamp(computeFloodScore(p, rainFactor, mode));
+      },
+    });
+
+    layer.addTo(map);
+
+    return () => {
+      try {
+        map.removeLayer(layer);
+      } catch (_) {}
+    };
+  }, [map, mode, dataReady]);
 
   return null;
 }
@@ -300,7 +303,7 @@ function FloatingHeader() {
 
 function LegendPanel() {
   return (
-    <div className="absolute right-4 top-56 z-[1000] fs-glass-strong rounded-2xl p-4">
+    <div className="absolute right-4 top-40 z-[1000] fs-glass-strong rounded-2xl p-4">
       <div className="font-semibold text-foreground mb-3">Flood Risk</div>
       <div className="space-y-2">
         {[
