@@ -245,12 +245,25 @@ function FloodRasterLayer({
   }, [setRainData, georasterRef]);
 
   // Fully destroy & recreate the GeoRasterLayer on mode change or initial data load.
-  // This ensures ALL tiles (including cached ones) reflect the current mode.
+  // Aggressively remove ALL existing GeoRasterLayers to bust tile cache.
+  const layerRef = useRef<any>(null);
+
   useEffect(() => {
     const georaster = georasterDataRef.current;
-    if (!georaster || !map || !map.getPane("overlayPane")) return;
+    if (!georaster || !map) return;
 
     const { rainFactor } = rainDataRef.current;
+
+    // Aggressively remove any lingering overlay layers to bust tile cache
+    if (layerRef.current) {
+      try { map.removeLayer(layerRef.current); } catch (_) {}
+      layerRef.current = null;
+    }
+    map.eachLayer((l: any) => {
+      if (l._georaster || l instanceof GeoRasterLayer) {
+        try { map.removeLayer(l); } catch (_) {}
+      }
+    });
 
     const layer = new GeoRasterLayer({
       georaster,
@@ -263,12 +276,19 @@ function FloodRasterLayer({
       },
     });
 
+    layerRef.current = layer;
     layer.addTo(map);
+
+    // Force map to invalidate and redraw all tiles
+    requestAnimationFrame(() => {
+      map.invalidateSize();
+    });
 
     return () => {
       try {
         map.removeLayer(layer);
       } catch (_) {}
+      layerRef.current = null;
     };
   }, [map, mode, dataReady]);
 
@@ -298,7 +318,7 @@ function FloatingHeader() {
 
 function LegendPanel() {
   return (
-    <div className="absolute right-4 top-40 z-[1000] fs-glass-strong rounded-2xl p-4">
+    <div className="absolute right-4 top-56 z-[1000] fs-glass-strong rounded-2xl p-4">
       <div className="font-semibold text-foreground mb-3">Flood Risk</div>
       <div className="space-y-2">
         {[
