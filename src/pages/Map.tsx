@@ -7,6 +7,7 @@ import { ArrowLeft, CloudRain, Droplets, Zap, Locate } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
 import { Button } from "@/components/ui/button";
+import { HeatmapModeSelector, type HeatmapMode } from "@/components/map/HeatmapModeSelector";
 
 import parseGeoraster from "georaster";
 import GeoRasterLayer from "georaster-layer-for-leaflet";
@@ -69,13 +70,27 @@ interface ClickedFloodInfo {
 
 /* ---------------- Map Click Handler ---------------- */
 
+/** Compute the displayed flood score based on heatmap mode */
+function computeFloodScore(rawValue: number, rainFactor: number, mode: HeatmapMode): number {
+  if (mode === "susceptibility") {
+    // Raw raster value as-is
+    return Math.max(0, Math.min(rawValue, 1));
+  }
+  // Real-time: scale heavily by rain. Low rain → mostly green.
+  // Floor of 0.05 so water bodies still faintly show.
+  const rainScale = Math.max(0.05, rainFactor);
+  return Math.min(rawValue * rainScale, 1);
+}
+
 function MapClickHandler({
   georasterRef,
   rainFactor,
+  mode,
   onFloodClick,
 }: {
   georasterRef: React.MutableRefObject<any>;
   rainFactor: number;
+  mode: HeatmapMode;
   onFloodClick: (info: ClickedFloodInfo | null) => void;
 }) {
   useMapEvents({
@@ -86,17 +101,13 @@ function MapClickHandler({
       const { lat, lng } = e.latlng;
       const { xmin, xmax, ymin, ymax, pixelWidth, pixelHeight, values } = georaster;
 
-      // Check if click is within raster bounds
       if (lng < xmin || lng > xmax || lat < ymin || lat > ymax) {
         onFloodClick(null);
         return;
       }
 
-      // Calculate pixel indices
       const pixelX = Math.floor((lng - xmin) / pixelWidth);
       const pixelY = Math.floor((ymax - lat) / pixelHeight);
-
-      // Get raw value
       const rawValue = values?.[0]?.[pixelY]?.[pixelX];
 
       if (rawValue == null || rawValue === 0) {
@@ -104,9 +115,7 @@ function MapClickHandler({
         return;
       }
 
-      // Apply same formula as rendering
-      const alpha = 0.8;
-      const floodScore = Math.min(rawValue * (1 + alpha * rainFactor), 1);
+      const floodScore = computeFloodScore(rawValue, rainFactor, mode);
       const risk = getRiskLevel(floodScore);
 
       onFloodClick({
@@ -184,29 +193,29 @@ function RecenterControl({ userLocation }: { userLocation: [number, number] | nu
 function FloodRasterLayer({
   setRainData,
   georasterRef,
+  mode,
 }: {
   setRainData: (data: RainData) => void;
   georasterRef: React.MutableRefObject<any>;
+  mode: HeatmapMode;
 }) {
   const map = useMap();
+  const rainDataRef = useRef<RainData>({ rainFactor: 0, rain24h: 0, rainMax: 0 });
+  const georasterDataRef = useRef<any>(null);
 
+  // Fetch data once
   useEffect(() => {
-    let layer: any;
     let isMounted = true;
 
-    async function loadRaster() {
-      /* GeoTIFF */
+    async function loadData() {
       const tif = await fetch("/data/partial_flood_score_250m.tif");
       const buffer = await tif.arrayBuffer();
       const georaster = await parseGeoraster(buffer);
 
-      // Check if component is still mounted and map is valid
-      if (!isMounted || !map || !map.getPane('overlayPane')) return;
-
-      // Store reference for click queries
+      if (!isMounted) return;
+      georasterDataRef.current = georaster;
       georasterRef.current = georaster;
 
-      /* Rain data */
       const rainRes = await fetch(
         "https://api.open-meteo.com/v1/forecast" +
           "?latitude=17.406" +
@@ -214,50 +223,47 @@ function FloodRasterLayer({
           "&hourly=rain" +
           "&forecast_days=1",
       );
-
       const rain = await rainRes.json();
       const hourlyRain: number[] = rain.hourly?.rain ?? [];
-
-      // Calculate rain stats
       const rain24h = hourlyRain.reduce((sum, val) => sum + val, 0);
       const rainMax = hourlyRain.length ? Math.max(...hourlyRain) : 0;
-      const rainFactor = Math.min(rainMax / 20, 1); // 20mm cap
-      const alpha = 0.8;
+      const rainFactor = Math.min(rainMax / 20, 1);
 
       if (!isMounted) return;
+      rainDataRef.current = { rainFactor, rain24h, rainMax };
       setRainData({ rainFactor, rain24h, rainMax });
-
-      layer = new GeoRasterLayer({
-        georaster,
-        opacity: 0.6,
-        pixelValuesToColorFn: (values: number[]) => {
-          const p = values[0];
-          if (p == null) return null;
-
-          const flood = Math.min(p * (1 + alpha * rainFactor), 1);
-          return floodColorRamp(flood);
-        },
-      });
-
-      // Final check before adding to map
-      if (isMounted && map && map.getPane('overlayPane')) {
-        layer.addTo(map);
-      }
     }
 
-    loadRaster();
+    loadData();
+    return () => { isMounted = false; };
+  }, [setRainData, georasterRef]);
+
+  // Create/recreate layer when mode or data changes
+  useEffect(() => {
+    const georaster = georasterDataRef.current;
+    if (!georaster || !map || !map.getPane("overlayPane")) return;
+
+    const { rainFactor } = rainDataRef.current;
+
+    const layer = new GeoRasterLayer({
+      georaster,
+      opacity: 0.6,
+      pixelValuesToColorFn: (values: number[]) => {
+        const p = values[0];
+        if (p == null) return null;
+        const flood = computeFloodScore(p, rainFactor, mode);
+        return floodColorRamp(flood);
+      },
+    });
+
+    layer.addTo(map);
 
     return () => {
-      isMounted = false;
-      if (layer && map) {
-        try {
-          map.removeLayer(layer);
-        } catch (e) {
-          // Map may already be unmounted
-        }
+      if (map) {
+        try { map.removeLayer(layer); } catch (_) {}
       }
     };
-  }, [map, setRainData, georasterRef]);
+  }, [map, mode]);
 
   return null;
 }
@@ -382,6 +388,7 @@ export default function FloodMap() {
   });
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [clickedFloodInfo, setClickedFloodInfo] = useState<ClickedFloodInfo | null>(null);
+  const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("realtime");
   const georasterRef = useRef<any>(null);
 
   // Request geolocation on mount
@@ -391,9 +398,7 @@ export default function FloodMap() {
         (pos) => {
           setUserLocation([pos.coords.latitude, pos.coords.longitude]);
         },
-        () => {
-          // Silently fail, use default center
-        },
+        () => {},
       );
     }
   }, []);
@@ -407,11 +412,12 @@ export default function FloodMap() {
             attribution="&copy; OpenStreetMap contributors"
           />
 
-          <FloodRasterLayer setRainData={setRainData} georasterRef={georasterRef} />
+          <FloodRasterLayer setRainData={setRainData} georasterRef={georasterRef} mode={heatmapMode} />
 
           <MapClickHandler
             georasterRef={georasterRef}
             rainFactor={rainData.rainFactor}
+            mode={heatmapMode}
             onFloodClick={setClickedFloodInfo}
           />
 
@@ -426,6 +432,7 @@ export default function FloodMap() {
 
         <FloatingHeader />
         <InfoPanel rainData={rainData} />
+        <HeatmapModeSelector mode={heatmapMode} onModeChange={setHeatmapMode} />
         <LegendPanel />
         <EmergencyButton />
       </div>
