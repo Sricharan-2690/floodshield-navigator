@@ -154,7 +154,7 @@ export default function RainCalendar() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-[1100]">
         <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
           <HamburgerMenu />
           <div>
