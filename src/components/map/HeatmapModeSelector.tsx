@@ -29,17 +29,11 @@ const modes = [
   },
 ];
 
-export function HeatmapModeSelector({
-  mode,
-  onModeChange,
-}: HeatmapModeSelectorProps) {
+export function HeatmapModeSelector({ mode, onModeChange }: HeatmapModeSelectorProps) {
   const current = modes.find((m) => m.value === mode)!;
 
   return (
-    <div
-      className="fixed top-4 right-4 z-[1000]"
-      style={{ marginTop: "3.5rem" }}
-    >
+    <div className="fixed top-4 right-4 z-[1004]" style={{ marginTop: "3.5rem" }}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
@@ -52,7 +46,7 @@ export function HeatmapModeSelector({
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="w-[220px] bg-background/95 backdrop-blur-md border-border/50 shadow-elev z-[9999]"
+          className="w-[220px] bg-background/95 backdrop-blur-md border-border/50 shadow-elev z-[1006]"
         >
           {modes.map((m) => {
             const Icon = m.icon;
@@ -61,22 +55,14 @@ export function HeatmapModeSelector({
               <DropdownMenuItem
                 key={m.value}
                 onClick={() => onModeChange(m.value)}
-                className={`flex items-start gap-3 p-3 cursor-pointer ${
-                  isActive ? "bg-primary/10" : ""
-                }`}
+                className={`flex items-start gap-3 p-3 cursor-pointer ${isActive ? "bg-primary/10" : ""}`}
               >
-                <Icon
-                  className={`size-4 mt-0.5 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`}
-                />
+                <Icon className={`size-4 mt-0.5 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
                 <div>
-                  <div
-                    className={`text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}
-                  >
+                  <div className={`text-sm font-medium ${isActive ? "text-primary" : "text-foreground"}`}>
                     {m.label}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {m.description}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{m.description}</div>
                 </div>
               </DropdownMenuItem>
             );
