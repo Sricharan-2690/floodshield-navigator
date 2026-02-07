@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { 
   Waves, ArrowLeft, MapPin, Navigation, Clock, Route, 
   ShieldCheck, AlertTriangle, Locate, ArrowRight 
@@ -216,11 +217,7 @@ export default function Routes() {
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="icon" className="mr-1">
-              <NavLink to="/">
-                <ArrowLeft className="size-5" />
-              </NavLink>
-            </Button>
+            <HamburgerMenu />
             <div className="grid size-9 place-items-center rounded-xl bg-primary/10 shadow-float">
               <Waves className="size-5 text-foreground" />
             </div>

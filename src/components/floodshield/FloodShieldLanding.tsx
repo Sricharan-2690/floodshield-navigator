@@ -3,6 +3,7 @@ import { ArrowRight, BarChart3, Bell, Layers, MapPin, Shield, Waves } from "luci
 import { useMemo, useRef, useState, type ReactNode, type MouseEvent } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 import floodMapImage from "@/assets/flood-map-hyderabad.png";
 import floodMapPreview from "@/assets/flood-map-preview.png";
 import routeMapPreview from "@/assets/route-map-preview.png";
@@ -43,6 +44,7 @@ function TopNav() {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
         <div className="flex items-center gap-3">
+          <HamburgerMenu />
           <BrandMark />
           <div className="leading-tight">
             <p className="text-sm font-semibold tracking-tight">AquaLens</p>

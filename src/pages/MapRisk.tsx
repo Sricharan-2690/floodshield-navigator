@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, useMap, useMapEvents, Popup, CircleMarker } fr
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CloudRain, Droplets, Zap, Locate } from "lucide-react";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
 import { Button } from "@/components/ui/button";
@@ -219,9 +220,9 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
 function FloatingHeader() {
   return (
     <div className="fixed top-4 left-4 right-4 z-[1000] flex items-center gap-4">
-      <Link to="/" className="fs-glass-strong flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-foreground transition-all hover:shadow-elev">
-        <ArrowLeft className="size-4" /> Back
-      </Link>
+      <div className="fs-glass-strong flex items-center rounded-xl shadow-elev">
+        <HamburgerMenu />
+      </div>
       <div className="fs-glass-strong rounded-xl px-5 py-2.5">
         <span className="text-sm font-semibold text-foreground">AquaLens — Real-time Risk</span>
       </div>

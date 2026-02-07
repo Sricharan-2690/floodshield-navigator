@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, CloudRain, Droplets, CloudSun } from "lucide-react";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { useRainForecast, type DayRain } from "@/hooks/useRainForecast";
 
 /* ---------- Helpers ---------- */
@@ -155,13 +156,7 @@ export default function RainCalendar() {
       {/* Header */}
       <header className="border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-50">
         <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 rounded-xl border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-all hover:shadow-md"
-          >
-            <ArrowLeft className="size-4" />
-            Back
-          </Link>
+          <HamburgerMenu />
           <div>
             <h1 className="text-lg font-bold text-foreground">
               Rain Forecast Calendar
