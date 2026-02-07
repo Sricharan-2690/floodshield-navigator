@@ -202,9 +202,13 @@ function FloodRasterLayer({
   const map = useMap();
   const rainDataRef = useRef<RainData>({ rainFactor: 0, rain24h: 0, rainMax: 0 });
   const georasterDataRef = useRef<any>(null);
-  const [dataReady, setDataReady] = useState(0);
+  const layerRef = useRef<any>(null);
+  const modeRef = useRef<HeatmapMode>(mode);
 
-  // Fetch raster + rain data once
+  // Keep modeRef in sync so the rendering closure always reads the latest mode
+  modeRef.current = mode;
+
+  // Fetch raster + rain data once, then create the layer
   useEffect(() => {
     let isMounted = true;
 
@@ -234,63 +238,41 @@ function FloodRasterLayer({
       rainDataRef.current = { rainFactor, rain24h, rainMax };
       setRainData({ rainFactor, rain24h, rainMax });
 
-      // Signal data is ready → triggers layer creation
-      setDataReady((n) => n + 1);
+      // Create the layer once — pixelValuesToColorFn reads modeRef at render time
+      const layer = new GeoRasterLayer({
+        georaster,
+        opacity: 0.6,
+        resolution: 512,
+        pixelValuesToColorFn: (values: number[]) => {
+          const p = values[0];
+          if (p == null) return null;
+          return floodColorRamp(
+            computeFloodScore(p, rainDataRef.current.rainFactor, modeRef.current),
+          );
+        },
+      });
+
+      if (!isMounted) return;
+      layerRef.current = layer;
+      layer.addTo(map);
     }
 
     loadData();
     return () => {
       isMounted = false;
-    };
-  }, [setRainData, georasterRef]);
-
-  // Fully destroy & recreate the GeoRasterLayer on mode change or initial data load.
-  // Aggressively remove ALL existing GeoRasterLayers to bust tile cache.
-  const layerRef = useRef<any>(null);
-
-  useEffect(() => {
-    const georaster = georasterDataRef.current;
-    if (!georaster || !map) return;
-
-    const { rainFactor } = rainDataRef.current;
-
-    // Aggressively remove any lingering overlay layers to bust tile cache
-    if (layerRef.current) {
-      try { map.removeLayer(layerRef.current); } catch (_) {}
-      layerRef.current = null;
-    }
-    map.eachLayer((l: any) => {
-      if (l._georaster || l instanceof GeoRasterLayer) {
-        try { map.removeLayer(l); } catch (_) {}
+      if (layerRef.current) {
+        try { map.removeLayer(layerRef.current); } catch (_) {}
+        layerRef.current = null;
       }
-    });
-
-    const layer = new GeoRasterLayer({
-      georaster,
-      opacity: 0.6,
-      resolution: 512,
-      pixelValuesToColorFn: (values: number[]) => {
-        const p = values[0];
-        if (p == null) return null;
-        return floodColorRamp(computeFloodScore(p, rainFactor, mode));
-      },
-    });
-
-    layerRef.current = layer;
-    layer.addTo(map);
-
-    // Force map to invalidate and redraw all tiles
-    requestAnimationFrame(() => {
-      map.invalidateSize();
-    });
-
-    return () => {
-      try {
-        map.removeLayer(layer);
-      } catch (_) {}
-      layerRef.current = null;
     };
-  }, [map, mode, dataReady]);
+  }, [setRainData, georasterRef, map]);
+
+  // When mode changes, just redraw existing tiles — no remove/add needed
+  useEffect(() => {
+    if (layerRef.current) {
+      layerRef.current.redraw();
+    }
+  }, [mode]);
 
   return null;
 }
