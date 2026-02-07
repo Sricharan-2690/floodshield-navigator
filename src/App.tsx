@@ -13,6 +13,7 @@ const MapSusceptibility = lazy(() => import("./pages/MapSusceptibility"));
 import RoutesPage from "./pages/Routes";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import RainCalendar from "./pages/RainCalendar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/routes" element={<RoutesPage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/rain" element={<RainCalendar />} />
           <Route path="/prototype" element={<Prototype />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
