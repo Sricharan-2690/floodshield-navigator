@@ -27,7 +27,6 @@ const NAV_ITEMS = [
   { label: "Dashboard", to: "/dashboard", icon: BarChart3 },
   { label: "Routes", to: "/routes", icon: Navigation },
   { label: "Rain Calendar", to: "/rain", icon: Calendar },
-  { label: "Prototype", to: "/prototype", icon: Smartphone },
   { label: "Login / Sign Up", to: "/auth", icon: LogIn },
 ];
 
