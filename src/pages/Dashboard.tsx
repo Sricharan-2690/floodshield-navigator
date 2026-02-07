@@ -285,8 +285,7 @@ function Alerts({ days, loading }: { days: DayRain[]; loading: boolean }) {
                     <div
                       key={i}
                       className={
-                        `fs-glass rounded-[1.25rem] p-4 border transition-all duration-700 ${severityStyles[a.severity]} ` +
-                        (inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3")
+                        `fs-glass rounded-[1.25rem] p-4 border ${severityStyles[a.severity]}`
                       }
                       style={{ transitionDelay: `${i * 120}ms` }}
                     >
