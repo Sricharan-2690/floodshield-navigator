@@ -1,13 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-  useMapEvents,
-  Popup,
-  Marker,
-  CircleMarker,
-} from "react-leaflet";
+import { MapContainer, TileLayer, useMap, useMapEvents, Popup, Marker, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
@@ -15,10 +7,7 @@ import { ArrowLeft, CloudRain, Droplets, Zap, Locate } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
 import { Button } from "@/components/ui/button";
-import {
-  HeatmapModeSelector,
-  type HeatmapMode,
-} from "@/components/map/HeatmapModeSelector";
+import { HeatmapModeSelector, type HeatmapMode } from "@/components/map/HeatmapModeSelector";
 
 import parseGeoraster from "georaster";
 import GeoRasterLayer from "georaster-layer-for-leaflet";
@@ -30,11 +19,7 @@ function lerp(a: number, b: number, t: number) {
 }
 
 function lerpColor(c1: number[], c2: number[], t: number) {
-  return [
-    Math.round(lerp(c1[0], c2[0], t)),
-    Math.round(lerp(c1[1], c2[1], t)),
-    Math.round(lerp(c1[2], c2[2], t)),
-  ];
+  return [Math.round(lerp(c1[0], c2[0], t)), Math.round(lerp(c1[1], c2[1], t)), Math.round(lerp(c1[2], c2[2], t))];
 }
 
 function rgbToCss([r, g, b]: number[]) {
@@ -85,24 +70,16 @@ interface ClickedFloodInfo {
 
 /* ---------------- Map Click Handler ---------------- */
 
-function computeFloodScore(
-  rawValue: number,
-  rainFactor: number,
-  mode: HeatmapMode,
-): number {
-  // Clamp input first
-  const p = Math.max(0, Math.min(rawValue, 1));
-
-  // Always preserve max-risk pixels
-  if (p === 1) return 1;
-
+/** Compute the displayed flood score based on heatmap mode */
+function computeFloodScore(rawValue: number, rainFactor: number, mode: HeatmapMode): number {
   if (mode === "susceptibility") {
-    return p;
+    // Raw raster value as-is
+    return Math.max(0, Math.min(rawValue, 1));
   }
-
-  // Real-time mode
+  // Real-time: scale heavily by rain. Low rain → mostly green.
+  // Floor of 0.05 so water bodies still faintly show.
   const rainScale = Math.max(0.05, rainFactor);
-  return Math.min(p * rainScale, 1);
+  return Math.min(rawValue * rainScale, 1);
 }
 
 function MapClickHandler({
@@ -122,8 +99,7 @@ function MapClickHandler({
       if (!georaster) return;
 
       const { lat, lng } = e.latlng;
-      const { xmin, xmax, ymin, ymax, pixelWidth, pixelHeight, values } =
-        georaster;
+      const { xmin, xmax, ymin, ymax, pixelWidth, pixelHeight, values } = georaster;
 
       if (lng < xmin || lng > xmax || lat < ymin || lat > ymax) {
         onFloodClick(null);
@@ -175,11 +151,7 @@ function CurrentLocationMarker({ position }: { position: [number, number] }) {
 
 /* ---------------- Auto Zoom to Location ---------------- */
 
-function AutoZoomToLocation({
-  userLocation,
-}: {
-  userLocation: [number, number] | null;
-}) {
+function AutoZoomToLocation({ userLocation }: { userLocation: [number, number] | null }) {
   const map = useMap();
   const hasZoomed = useRef(false);
 
@@ -195,11 +167,7 @@ function AutoZoomToLocation({
 
 /* ---------------- Recenter Control ---------------- */
 
-function RecenterControl({
-  userLocation,
-}: {
-  userLocation: [number, number] | null;
-}) {
+function RecenterControl({ userLocation }: { userLocation: [number, number] | null }) {
   const map = useMap();
   const defaultCenter: [number, number] = [17.406, 78.477];
 
@@ -232,15 +200,11 @@ function FloodRasterLayer({
   mode: HeatmapMode;
 }) {
   const map = useMap();
-  const rainDataRef = useRef<RainData>({
-    rainFactor: 0,
-    rain24h: 0,
-    rainMax: 0,
-  });
+  const rainDataRef = useRef<RainData>({ rainFactor: 0, rain24h: 0, rainMax: 0 });
   const georasterDataRef = useRef<any>(null);
+  const [dataReady, setDataReady] = useState(0);
 
-  const rasterLayerRef = useRef<any>(null);
-
+  // Fetch raster + rain data once
   useEffect(() => {
     let isMounted = true;
 
@@ -249,39 +213,10 @@ function FloodRasterLayer({
       const buffer = await tif.arrayBuffer();
       const georaster = await parseGeoraster(buffer);
 
-      if (!isMounted || !map) return;
-
+      if (!isMounted) return;
       georasterDataRef.current = georaster;
       georasterRef.current = georaster;
 
-      // 🔥 CREATE LAYER HERE (once)
-      if (!rasterLayerRef.current) {
-        rasterLayerRef.current = new GeoRasterLayer({
-          georaster,
-
-          pane: "overlayPane",
-          opacity: 0.6,
-
-          resolution: 512,
-          resampleMethod: "bilinear",
-          keepBuffer: 2,
-
-          updateWhenZooming: false,
-          updateWhenIdle: true,
-
-          pixelValuesToColorFn: (values: number[]) => {
-            const p = values[0];
-            if (p == null) return null;
-            return floodColorRamp(
-              computeFloodScore(p, rainDataRef.current.rainFactor, mode),
-            );
-          },
-        });
-
-        rasterLayerRef.current.addTo(map);
-      }
-
-      // 🌧️ Fetch rain AFTER raster is ready
       const rainRes = await fetch(
         "https://api.open-meteo.com/v1/forecast" +
           "?latitude=17.406" +
@@ -289,42 +224,53 @@ function FloodRasterLayer({
           "&hourly=rain" +
           "&forecast_days=1",
       );
-
       const rain = await rainRes.json();
       const hourlyRain: number[] = rain.hourly?.rain ?? [];
-      const rain24h = hourlyRain.reduce((s, v) => s + v, 0);
+      const rain24h = hourlyRain.reduce((sum, val) => sum + val, 0);
       const rainMax = hourlyRain.length ? Math.max(...hourlyRain) : 0;
       const rainFactor = Math.min(rainMax / 20, 1);
 
+      if (!isMounted) return;
       rainDataRef.current = { rainFactor, rain24h, rainMax };
       setRainData({ rainFactor, rain24h, rainMax });
 
-      rasterLayerRef.current.redraw();
-      rasterLayerRef.current.bringToFront();
-
+      // Signal data is ready → triggers layer creation
+      setDataReady((n) => n + 1);
     }
 
     loadData();
     return () => {
       isMounted = false;
     };
-  }, [map]);
+  }, [setRainData, georasterRef]);
 
+  // Fully destroy & recreate the GeoRasterLayer on mode change or initial data load.
+  // This ensures ALL tiles (including cached ones) reflect the current mode.
   useEffect(() => {
-    const layer = rasterLayerRef.current;
-    if (!layer) return;
+    const georaster = georasterDataRef.current;
+    if (!georaster || !map || !map.getPane("overlayPane")) return;
 
-    layer.options.pixelValuesToColorFn = (values: number[]) => {
-      const p = values[0];
-      if (p == null) return null;
-      return floodColorRamp(
-        computeFloodScore(p, rainDataRef.current.rainFactor, mode),
-      );
+    const { rainFactor } = rainDataRef.current;
+
+    const layer = new GeoRasterLayer({
+      georaster,
+      opacity: 0.6,
+      resolution: 512,
+      pixelValuesToColorFn: (values: number[]) => {
+        const p = values[0];
+        if (p == null) return null;
+        return floodColorRamp(computeFloodScore(p, rainFactor, mode));
+      },
+    });
+
+    layer.addTo(map);
+
+    return () => {
+      try {
+        map.removeLayer(layer);
+      } catch (_) {}
     };
-
-    layer.redraw();
-    layer.bringToFront();
-  }, [mode]);
+  }, [map, mode, dataReady]);
 
   return null;
 }
@@ -342,9 +288,7 @@ function FloatingHeader() {
         Back
       </Link>
       <div className="fs-glass-strong rounded-xl px-5 py-2.5">
-        <span className="text-sm font-semibold text-foreground">
-          AquaLens Map
-        </span>
+        <span className="text-sm font-semibold text-foreground">AquaLens Map</span>
       </div>
     </div>
   );
@@ -354,7 +298,7 @@ function FloatingHeader() {
 
 function LegendPanel() {
   return (
-    <div className="absolute right-4 top-40 z-[1000] fs-glass-strong rounded-2xl p-4">
+    <div className="absolute right-4 top-20 z-[1000] fs-glass-strong rounded-2xl p-4">
       <div className="font-semibold text-foreground mb-3">Flood Risk</div>
       <div className="space-y-2">
         {[
@@ -363,14 +307,8 @@ function LegendPanel() {
           ["High", "rgb(255,140,0)"],
           ["Severe", "rgb(200,0,0)"],
         ].map(([label, color]) => (
-          <div
-            key={label}
-            className="flex items-center gap-3 text-sm text-foreground/80"
-          >
-            <span
-              className="h-3 w-6 rounded-full"
-              style={{ background: color }}
-            />
+          <div key={label} className="flex items-center gap-3 text-sm text-foreground/80">
+            <span className="h-3 w-6 rounded-full" style={{ background: color }} />
             {label}
           </div>
         ))}
@@ -404,9 +342,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">24h Rain</div>
-            <div className="font-mono text-sm font-semibold text-foreground">
-              {rainData.rain24h.toFixed(1)} mm
-            </div>
+            <div className="font-mono text-sm font-semibold text-foreground">{rainData.rain24h.toFixed(1)} mm</div>
           </div>
         </div>
 
@@ -416,9 +352,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
           </div>
           <div>
             <div className="text-xs text-muted-foreground">Peak Hour</div>
-            <div className="font-mono text-sm font-semibold text-foreground">
-              {rainData.rainMax.toFixed(1)} mm
-            </div>
+            <div className="font-mono text-sm font-semibold text-foreground">{rainData.rainMax.toFixed(1)} mm</div>
           </div>
         </div>
       </div>
@@ -432,26 +366,16 @@ function FloodScoreDisplay({ info }: { info: ClickedFloodInfo }) {
   return (
     <Popup position={[info.lat, info.lng]} closeButton={true}>
       <div className="p-1 min-w-[140px]">
-        <div className="text-xs text-muted-foreground mb-1">
-          Flood Risk Score
-        </div>
+        <div className="text-xs text-muted-foreground mb-1">Flood Risk Score</div>
         <div className="flex items-center gap-2 mb-2">
-          <span
-            className="size-3 rounded-full"
-            style={{ background: info.color }}
-          />
-          <span className="font-mono text-lg font-bold">
-            {info.score.toFixed(2)}
-          </span>
+          <span className="size-3 rounded-full" style={{ background: info.color }} />
+          <span className="font-mono text-lg font-bold">{info.score.toFixed(2)}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">Risk Level:</span>
           <span
             className="text-xs font-semibold px-2 py-0.5 rounded-full"
-            style={{
-              background: info.color,
-              color: info.level === "Low" ? "#000" : "#fff",
-            }}
+            style={{ background: info.color, color: info.level === "Low" ? "#000" : "#fff" }}
           >
             {info.level}
           </span>
@@ -469,11 +393,8 @@ export default function FloodMap() {
     rain24h: 0,
     rainMax: 0,
   });
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(
-    null,
-  );
-  const [clickedFloodInfo, setClickedFloodInfo] =
-    useState<ClickedFloodInfo | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [clickedFloodInfo, setClickedFloodInfo] = useState<ClickedFloodInfo | null>(null);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("realtime");
   const georasterRef = useRef<any>(null);
 
@@ -492,26 +413,13 @@ export default function FloodMap() {
   return (
     <TooltipProvider>
       <div className="h-screen w-full relative">
-        <MapContainer
-          center={[17.406, 78.477]}
-          zoom={11}
-          zoomControl={false}
-          className="h-full w-full"
-          minZoom={10}
-          maxZoom={16}
-          zoomSnap={1}
-          zoomDelta={1}
-        >
+        <MapContainer center={[17.406, 78.477]} zoom={11} zoomControl={false} className="h-full w-full" minZoom={10} maxZoom={16} zoomSnap={1} zoomDelta={1}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
           />
 
-          <FloodRasterLayer
-            setRainData={setRainData}
-            georasterRef={georasterRef}
-            mode={heatmapMode}
-          />
+          <FloodRasterLayer setRainData={setRainData} georasterRef={georasterRef} mode={heatmapMode} />
 
           <MapClickHandler
             georasterRef={georasterRef}
