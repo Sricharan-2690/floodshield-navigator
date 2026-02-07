@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Waves, ArrowLeft, Mail, Lock, MapPin, Bell, Share2 } from "lucide-react";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -32,11 +33,7 @@ export default function Auth() {
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="icon" className="mr-1">
-              <NavLink to="/">
-                <ArrowLeft className="size-5" />
-              </NavLink>
-            </Button>
+            <HamburgerMenu />
             <div className="grid size-9 place-items-center rounded-xl bg-primary/10 shadow-float">
               <Waves className="size-5 text-foreground" />
             </div>

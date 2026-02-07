@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Bell, ChevronLeft, ChevronRight, MapPin, Search, ShieldCheck } from "lucide-react";
+import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { useMemo, useState } from "react";
 
 type StepId =
@@ -265,9 +266,12 @@ export default function Prototype() {
     <div className="min-h-screen bg-fs-hero fs-noise">
       <header className="border-b border-border/60 bg-background/70 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold tracking-tight">FloodShield Prototype</p>
-            <p className="text-xs text-muted-foreground">Splash → Permissions → Dashboard → Search → Risk → Route → Alerts → Analytics</p>
+          <div className="flex items-center gap-3">
+            <HamburgerMenu />
+            <div>
+              <p className="text-sm font-semibold tracking-tight">FloodShield Prototype</p>
+              <p className="text-xs text-muted-foreground">Splash → Permissions → Dashboard → Search → Risk → Route → Alerts → Analytics</p>
+            </div>
           </div>
           <div className="fs-glass rounded-full px-3 py-1 text-xs text-muted-foreground">{pill}</div>
         </div>
