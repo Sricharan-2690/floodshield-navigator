@@ -319,7 +319,7 @@ function LegendPanel() {
 
 function InfoPanel({ rainData }: { rainData: RainData }) {
   return (
-    <div className="absolute left-4 top-20 z-[1000] fs-glass-strong rounded-2xl p-4 min-w-[180px]">
+    <div className="absolute left-4 top-40 z-[1000] fs-glass-strong rounded-2xl p-4 min-w-[180px]">
       <div className="font-semibold text-foreground mb-1">AquaLens Live</div>
       <div className="text-xs text-muted-foreground mb-3">Rainfall Impact</div>
 
@@ -413,7 +413,16 @@ export default function FloodMap() {
   return (
     <TooltipProvider>
       <div className="h-screen w-full relative">
-        <MapContainer center={[17.406, 78.477]} zoom={11} zoomControl={false} className="h-full w-full" minZoom={10} maxZoom={16} zoomSnap={1} zoomDelta={1}>
+        <MapContainer
+          center={[17.406, 78.477]}
+          zoom={11}
+          zoomControl={false}
+          className="h-full w-full"
+          minZoom={10}
+          maxZoom={16}
+          zoomSnap={1}
+          zoomDelta={1}
+        >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
