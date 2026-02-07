@@ -219,7 +219,7 @@ function InfoPanel({ rainData }: { rainData: RainData }) {
 
 function FloatingHeader() {
   return (
-    <div className="fixed top-4 left-4 right-4 z-[1000] flex items-center gap-4">
+    <div className="fixed top-4 left-4 right-4 z-[1100] flex items-center gap-4">
       <div className="fs-glass-strong flex items-center rounded-xl shadow-elev">
         <HamburgerMenu />
       </div>
