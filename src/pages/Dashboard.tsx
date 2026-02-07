@@ -4,7 +4,10 @@ import { Waves, ArrowLeft, Bell, CloudRain, Droplets, CloudSun, Zap, TrendingUp,
 import { EmergencyButton } from "@/components/floodshield/EmergencyButton";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
 import { useRainForecast, type DayRain } from "@/hooks/useRainForecast";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, AreaChart, Area } from "recharts";
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+  AreaChart, Area, CartesianGrid, LineChart, Line, Legend,
+} from "recharts";
 
 /* ---------- Helpers ---------- */
 
@@ -298,6 +301,21 @@ function Alerts({ days, loading }: { days: DayRain[]; loading: boolean }) {
   );
 }
 
+/* ---------- Shared tooltip style ---------- */
+
+const tooltipStyle = {
+  contentStyle: {
+    background: "hsl(var(--card))",
+    border: "1px solid hsl(var(--border))",
+    borderRadius: "12px",
+    fontSize: "12px",
+    padding: "8px 12px",
+    boxShadow: "0 8px 24px -8px rgba(0,0,0,0.15)",
+  },
+  labelStyle: { fontWeight: 600, marginBottom: 4 },
+  cursor: { fill: "hsl(var(--muted) / 0.3)" },
+};
+
 /* ---------- Analytics Charts ---------- */
 
 function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
@@ -305,9 +323,16 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
 
   const chartData = days.map((d) => ({
     name: d.date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+    shortName: d.date.toLocaleDateString("en-US", { day: "numeric" }),
     rain: parseFloat(d.totalMm.toFixed(1)),
     peak: parseFloat(d.peakMm.toFixed(1)),
   }));
+
+  // Compute y-axis domain with minimum so bars are visible even with low data
+  const maxRain = Math.max(...chartData.map((d) => d.rain), 1);
+  const maxPeak = Math.max(...chartData.map((d) => d.peak), 0.5);
+  const rainDomain = [0, Math.ceil(maxRain * 1.3)];
+  const peakDomain = [0, Math.ceil(maxPeak * 1.3)];
 
   // Cumulative chart
   let cumulative = 0;
@@ -318,6 +343,7 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
       total: parseFloat(cumulative.toFixed(1)),
     };
   });
+  const maxCumulative = Math.max(...cumulativeData.map((d) => d.total), 1);
 
   return (
     <section className="py-16 sm:py-20">
@@ -331,45 +357,63 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
         {loading ? (
           <div className="mt-12"><DashboardSkeleton /></div>
         ) : (
-          <div ref={ref} className="mt-12 grid gap-6 lg:grid-cols-12">
-            {/* Daily rain bar chart */}
-            <div className="lg:col-span-7 fs-glass-strong rounded-[2rem] p-6 sm:p-8">
-              <div className="flex items-baseline justify-between">
-                <p className="text-sm font-semibold tracking-tight">Daily Rainfall</p>
-                <p className="text-xs text-muted-foreground">mm per day</p>
+          <div ref={ref} className="mt-12 space-y-6">
+            {/* ---- Daily Rain Bar Chart (full width) ---- */}
+            <div className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
+              <div className="flex items-baseline justify-between mb-6">
+                <div>
+                  <p className="text-sm font-semibold tracking-tight">Daily Rainfall</p>
+                  <p className="text-xs text-muted-foreground mt-1">Total precipitation per day (mm)</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  {[
+                    { label: "Low", color: "bg-emerald-400" },
+                    { label: "Moderate", color: "bg-amber-400" },
+                    { label: "Heavy", color: "bg-red-400" },
+                  ].map((l) => (
+                    <span key={l.label} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                      <span className={`size-2 rounded-full ${l.color}`} /> {l.label}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div
-                className="mt-6 h-56"
-                style={{
-                  opacity: inView ? 1 : 0,
-                  transition: "opacity 800ms ease 200ms",
-                }}
+                className="h-64"
+                style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 200ms" }}
               >
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="hsl(var(--border))"
+                      vertical={false}
+                    />
                     <XAxis
                       dataKey="name"
-                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false}
                       tickLine={false}
-                      interval={1}
+                      interval={0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={50}
                     />
                     <YAxis
-                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
                       axisLine={false}
                       tickLine={false}
-                      width={35}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "12px",
-                        fontSize: "12px",
+                      width={40}
+                      domain={rainDomain}
+                      tickFormatter={(v: number) => `${v}`}
+                      label={{
+                        value: "mm",
+                        position: "insideTopLeft",
+                        offset: -5,
+                        style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" },
                       }}
-                      cursor={{ fill: "hsl(var(--muted) / 0.3)" }}
                     />
-                    <Bar dataKey="rain" radius={[6, 6, 0, 0]} name="Rain (mm)">
+                    <Tooltip {...tooltipStyle} formatter={(val: number) => [`${val} mm`, "Rainfall"]} />
+                    <Bar dataKey="rain" radius={[6, 6, 0, 0]} name="Rain (mm)" maxBarSize={40}>
                       {chartData.map((entry, i) => (
                         <Cell key={i} fill={getBarColor(entry.rain)} />
                       ))}
@@ -379,73 +423,107 @@ function Analytics({ days, loading }: { days: DayRain[]; loading: boolean }) {
               </div>
             </div>
 
-            {/* Side panels */}
-            <div className="lg:col-span-5 grid gap-4">
+            {/* ---- Two charts side by side ---- */}
+            <div className="grid gap-6 lg:grid-cols-2">
               {/* Cumulative area chart */}
-              <div className="fs-glass rounded-[2rem] p-6">
-                <p className="text-sm font-semibold tracking-tight">Cumulative Rainfall</p>
+              <div className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
+                <div className="mb-6">
+                  <p className="text-sm font-semibold tracking-tight">Cumulative Rainfall</p>
+                  <p className="text-xs text-muted-foreground mt-1">Running total over the forecast window</p>
+                </div>
                 <div
-                  className="mt-4 h-32"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transition: "opacity 800ms ease 400ms",
-                  }}
+                  className="h-56"
+                  style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 400ms" }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={cumulativeData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
+                    <AreaChart data={cumulativeData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
                       <defs>
                         <linearGradient id="cumGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
+                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.35} />
+                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.03} />
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="name" hide />
-                      <YAxis hide />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "12px",
-                          fontSize: "12px",
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                        axisLine={false}
+                        tickLine={false}
+                        interval={2}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={40}
+                        domain={[0, Math.ceil(maxCumulative * 1.15)]}
+                        label={{
+                          value: "mm",
+                          position: "insideTopLeft",
+                          offset: -5,
+                          style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" },
                         }}
                       />
+                      <Tooltip {...tooltipStyle} formatter={(val: number) => [`${val} mm`, "Cumulative"]} />
                       <Area
                         type="monotone"
                         dataKey="total"
                         stroke="hsl(var(--primary))"
-                        strokeWidth={2}
+                        strokeWidth={2.5}
                         fill="url(#cumGrad)"
                         name="Total (mm)"
+                        dot={{ r: 2.5, fill: "hsl(var(--primary))", strokeWidth: 0 }}
+                        activeDot={{ r: 5, fill: "hsl(var(--primary))", stroke: "white", strokeWidth: 2 }}
                       />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
-              {/* Peak intensity bar */}
-              <div className="fs-glass rounded-[2rem] p-6">
-                <p className="text-sm font-semibold tracking-tight">Peak Hourly Intensity</p>
+              {/* Peak intensity line chart */}
+              <div className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
+                <div className="mb-6">
+                  <p className="text-sm font-semibold tracking-tight">Peak Hourly Intensity</p>
+                  <p className="text-xs text-muted-foreground mt-1">Maximum rain rate per day (mm/hr)</p>
+                </div>
                 <div
-                  className="mt-4 h-28"
-                  style={{
-                    opacity: inView ? 1 : 0,
-                    transition: "opacity 800ms ease 600ms",
-                  }}
+                  className="h-56"
+                  style={{ opacity: inView ? 1 : 0, transition: "opacity 800ms ease 600ms" }}
                 >
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -10 }}>
-                      <XAxis dataKey="name" hide />
-                      <YAxis hide />
-                      <Tooltip
-                        contentStyle={{
-                          background: "hsl(var(--card))",
-                          border: "1px solid hsl(var(--border))",
-                          borderRadius: "12px",
-                          fontSize: "12px",
+                    <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 5, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                      <XAxis
+                        dataKey="name"
+                        tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                        axisLine={false}
+                        tickLine={false}
+                        interval={2}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                        axisLine={false}
+                        tickLine={false}
+                        width={40}
+                        domain={peakDomain}
+                        label={{
+                          value: "mm/hr",
+                          position: "insideTopLeft",
+                          offset: -5,
+                          style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" },
                         }}
                       />
-                      <Bar dataKey="peak" radius={[4, 4, 0, 0]} fill="hsl(var(--primary) / 0.7)" name="Peak (mm/hr)" />
-                    </BarChart>
+                      <Tooltip {...tooltipStyle} formatter={(val: number) => [`${val} mm/hr`, "Peak"]} />
+                      <Line
+                        type="monotone"
+                        dataKey="peak"
+                        stroke="hsl(0, 84%, 60%)"
+                        strokeWidth={2.5}
+                        name="Peak (mm/hr)"
+                        dot={{ r: 3, fill: "hsl(0, 84%, 60%)", strokeWidth: 0 }}
+                        activeDot={{ r: 6, fill: "hsl(0, 84%, 60%)", stroke: "white", strokeWidth: 2 }}
+                      />
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
