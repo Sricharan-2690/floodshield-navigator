@@ -14,7 +14,136 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      danger_alert_comments: {
+        Row: {
+          alert_id: string
+          comment: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          alert_id: string
+          comment: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          alert_id?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "danger_alert_comments_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "danger_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      danger_alert_votes: {
+        Row: {
+          alert_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+          vote: number
+        }
+        Insert: {
+          alert_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+          vote: number
+        }
+        Update: {
+          alert_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+          vote?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "danger_alert_votes_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "danger_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      danger_alerts: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          lat: number
+          lng: number
+          location_text: string
+          message: string
+          photo_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          lat: number
+          lng: number
+          location_text: string
+          message: string
+          photo_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          lat?: number
+          lng?: number
+          location_text?: string
+          message?: string
+          photo_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
