@@ -58,7 +58,12 @@ function TopNav() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button asChild variant="glass" size="pill" className="hidden sm:inline-flex">
+          <Button
+            asChild
+            variant="destructive"
+            size="pill"
+            className="hidden sm:inline-flex shadow-float hover:shadow-elev"
+          >
             <NavLink to="/danger-alerts">
               <span className="inline-flex items-center gap-2">
                 <Siren className="size-4" /> Danger Alerts
