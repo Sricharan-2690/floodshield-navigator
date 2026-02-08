@@ -31,10 +31,18 @@ export function useNominatimSearch(query: string) {
         url.searchParams.set("limit", "6");
         url.searchParams.set("addressdetails", "1");
 
+        // Bias results to India (more like Uber/Rapido behavior).
+        // Nominatim supports restricting by countrycodes.
+        url.searchParams.set("countrycodes", "in");
+        // Optional: bounding box around India to reduce cross-country noise.
+        url.searchParams.set("viewbox", "68.1,35.7,97.4,6.5"); // left,top,right,bottom
+        url.searchParams.set("bounded", "1");
+
         const res = await fetch(url.toString(), {
           headers: {
             // best-effort courtesy header
-            "Accept": "application/json",
+            Accept: "application/json",
+            "Accept-Language": "en-IN,en;q=0.9",
           },
         });
 
