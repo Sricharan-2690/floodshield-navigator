@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,7 @@ import { useDangerAlertsRealtime } from "@/hooks/useDangerAlertsRealtime";
 import { useNonExpired } from "@/lib/expiry";
 import type { DangerAlert, DangerAlertComment, DangerAlertVote } from "@/types/danger-alerts";
 import { useAlertStats } from "@/hooks/useAlertStats";
-import { ArrowUp, ArrowDown, MessageCircle, Plus, Waves } from "lucide-react";
+import { ArrowUp, ArrowDown, MessageCircle, Plus, LogIn, Waves } from "lucide-react";
 
 type LocationPick = { label: string; lat: number; lng: number };
 
@@ -27,6 +28,7 @@ function formatAge(iso: string) {
 
 export default function DangerAlertsPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   const { alerts: alertsRaw, loading: alertsLoading, error: alertsError, refresh } = useDangerAlertsRealtime();
@@ -38,7 +40,7 @@ export default function DangerAlertsPage() {
 
   const enriched = useAlertStats(alerts, votes, comments);
 
-  // --- Create form state
+  // --- Create form state (logged-in only)
   const [createOpen, setCreateOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [locationQuery, setLocationQuery] = useState("");
@@ -219,18 +221,29 @@ export default function DangerAlertsPage() {
             </div>
             <div className="leading-tight">
               <p className="text-sm font-semibold tracking-tight">Danger Alerts</p>
-              <p className="text-xs text-muted-foreground">Community-reported flood risks (auto-expire in 36h)</p>
+              <p className="text-xs text-muted-foreground">Public community feed • posts expire in 36h</p>
             </div>
           </div>
 
-          <Button variant="hero" size="pill" className="gap-2" onClick={() => setCreateOpen((v) => !v)}>
-            <Plus className="size-4" /> Create
-          </Button>
+          {user ? (
+            <Button variant="hero" size="pill" className="gap-2" onClick={() => setCreateOpen((v) => !v)}>
+              <Plus className="size-4" /> Create
+            </Button>
+          ) : (
+            <Button
+              variant="glass"
+              size="pill"
+              className="gap-2"
+              onClick={() => navigate(`/auth?mode=login&redirect=${encodeURIComponent("/danger-alerts")}`)}
+            >
+              <LogIn className="size-4" /> Login to post
+            </Button>
+          )}
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 space-y-6">
-        {createOpen && (
+        {user && createOpen && (
           <section className="fs-glass-strong rounded-[2rem] p-6 sm:p-8">
             <h2 className="text-lg font-semibold tracking-tight">Create a danger alert</h2>
             <p className="mt-2 text-sm text-muted-foreground">Visible to everyone. Only you can delete it.</p>
