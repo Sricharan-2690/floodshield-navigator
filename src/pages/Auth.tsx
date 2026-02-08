@@ -6,7 +6,7 @@ import { db } from "@/integrations/supabase/db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Waves } from "lucide-react";
+import { Chrome, Waves } from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
 
 const schema = z.object({
@@ -32,11 +32,42 @@ export default function AuthPage() {
     if (!loading && user) navigate(redirectTo, { replace: true });
   }, [user, loading, navigate, redirectTo]);
 
-  const title = useMemo(() => (mode === "login" ? "Welcome back" : "Create your account"), [mode]);
+  const title = useMemo(
+    () => (mode === "login" ? "Welcome back" : "Create your account"),
+    [mode],
+  );
 
   async function ensureProfile(userId: string) {
     // Best-effort: create if missing.
     await db.from("profiles").upsert({ user_id: userId }, { onConflict: "user_id" });
+  }
+
+  function getOAuthRedirectUrl() {
+    // Supabase expects an absolute URL.
+    // We keep the existing redirect param behavior by using the same redirectTo target.
+    const target = redirectTo?.startsWith("http") ? redirectTo : `${window.location.origin}${redirectTo}`;
+    return target;
+  }
+
+  async function onGoogle() {
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: getOAuthRedirectUrl(),
+        },
+      });
+      if (error) throw error;
+      // On success, Supabase will redirect away to Google.
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Google sign-in failed",
+        description: err?.message ?? "Try again",
+      });
+      setSubmitting(false);
+    }
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -99,7 +130,29 @@ export default function AuthPage() {
             {mode === "login" ? "Login to continue." : "Sign up to start posting danger alerts."}
           </p>
 
-          <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4">
+            <Button
+              type="button"
+              variant="glass-strong"
+              size="pill"
+              className="w-full gap-2"
+              disabled={submitting}
+              onClick={onGoogle}
+            >
+              <Chrome className="size-4" /> Continue with Google
+            </Button>
+
+            <div className="relative py-1">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border/70" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="fs-glass px-3 text-xs text-muted-foreground">or</span>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={onSubmit} className="mt-4 space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Email</label>
               <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
