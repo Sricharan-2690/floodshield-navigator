@@ -40,6 +40,15 @@ export default function DangerAlertsPage() {
 
   const enriched = useAlertStats(alerts, votes, comments);
 
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+
+  // If navigated from map markers, focus the matching post.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const focus = params.get("focus");
+    if (focus) setFocusedId(focus);
+  }, []);
+
   // --- Create form state (logged-in only)
   const [createOpen, setCreateOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -78,6 +87,16 @@ export default function DangerAlertsPage() {
       mounted = false;
     };
   }, [toast, alertIds.join(",")]);
+
+  useEffect(() => {
+    if (!focusedId) return;
+    if (alertsLoading || statsLoading) return;
+
+    const el = document.getElementById(`alert-${focusedId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [focusedId, alertsLoading, statsLoading, enriched.length]);
 
   async function vote(alertId: string, value: -1 | 1) {
     if (!user) {
@@ -330,6 +349,7 @@ export default function DangerAlertsPage() {
             <AlertCard
               key={a.id}
               alert={a}
+              focused={focusedId === a.id}
               isOwner={!!user && user.id === a.user_id}
               onVote={vote}
               onComment={addComment}
@@ -345,6 +365,7 @@ export default function DangerAlertsPage() {
 
 function AlertCard({
   alert,
+  focused,
   isOwner,
   onVote,
   onComment,
@@ -352,6 +373,7 @@ function AlertCard({
   comments,
 }: {
   alert: DangerAlert & { score: number; commentCount: number };
+  focused: boolean;
   isOwner: boolean;
   onVote: (alertId: string, v: -1 | 1) => void;
   onComment: (alertId: string, text: string) => void;
@@ -363,7 +385,10 @@ function AlertCard({
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   return (
-    <article className="fs-glass rounded-[2rem] p-5 sm:p-6 border border-border/70">
+    <article
+      id={`alert-${alert.id}`}
+      className={`fs-glass rounded-[2rem] p-5 sm:p-6 border border-border/70 scroll-mt-24 ${focused ? "ring-2 ring-primary/40" : ""}`}
+    >
       <header className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-sm font-semibold tracking-tight">{alert.location_text}</h3>
