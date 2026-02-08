@@ -114,10 +114,13 @@ function RecenterControl({ userLocation }: { userLocation: [number, number] | nu
   const map = useMap();
   const defaultCenter: [number, number] = [17.406, 78.477];
   return (
-    <Button onClick={() => map.flyTo(userLocation || defaultCenter, 14, { duration: 1 })}
-      variant="glass-strong" className="fixed bottom-6 left-6 z-[1000] gap-2 shadow-elev">
+    <Button
+      onClick={() => map.flyTo(userLocation || defaultCenter, 14, { duration: 1 })}
+      variant="glass-strong"
+      className="fixed bottom-6 left-6 z-[1000] gap-2 shadow-elev"
+    >
       <Locate className="size-4" />
-      <span className="text-sm font-medium">Recenter</span>
+      <span className="hidden sm:inline text-sm font-medium">Recenter</span>
     </Button>
   );
 }
@@ -146,14 +149,21 @@ function FloodScoreDisplay({ info }: { info: ClickedFloodInfo }) {
 /* ---------- Nav Tabs ---------- */
 function ModeNavTabs() {
   return (
-    <div className="fixed top-4 right-4 z-[1004]" style={{ marginTop: "3.5rem" }}>
+    <div
+      className="fixed bottom-4 left-1/2 z-[1004] -translate-x-1/2 sm:bottom-auto sm:left-auto sm:translate-x-0 sm:top-4 sm:right-4"
+      style={{ marginTop: "3.5rem" }}
+    >
       <div className="fs-glass-strong rounded-xl p-1 flex gap-1 shadow-elev">
-        <a href="/map/risk"
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-muted/50">
-          <CloudRain className="size-4" /> Real-time Risk
+        <a
+          href="/map/risk"
+          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-foreground/70 hover:text-foreground hover:bg-muted/50"
+        >
+          <CloudRain className="size-4" />
+          <span className="hidden sm:inline">Real-time Risk</span>
         </a>
         <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium bg-primary text-primary-foreground shadow-sm">
-          <Droplets className="size-4" /> Susceptibility
+          <Droplets className="size-4" />
+          <span className="hidden sm:inline">Susceptibility</span>
         </button>
       </div>
     </div>
@@ -163,14 +173,24 @@ function ModeNavTabs() {
 /* ---------- Panels ---------- */
 function LegendPanel() {
   return (
-    <div className="absolute right-4 top-56 z-[1000] fs-glass-strong rounded-2xl p-4">
+    <div className="hidden sm:block absolute right-4 top-56 z-[1000] fs-glass-strong rounded-2xl p-4">
       <div className="font-semibold text-foreground mb-3">Flood Risk</div>
       <div className="space-y-2">
-        {([["Low","rgb(0,200,0)"],["Moderate","rgb(255,230,0)"],["High","rgb(255,140,0)"],["Severe","rgb(200,0,0)"]] as const).map(([label, color]) => (
-          <div key={label} className="flex items-center gap-3 text-sm text-foreground/80">
-            <span className="h-3 w-6 rounded-full" style={{ background: color }} /> {label}
-          </div>
-        ))}
+        {(["Low", "Moderate", "High", "Severe"] as const).map((label) => {
+          const color =
+            label === "Low"
+              ? "rgb(0,200,0)"
+              : label === "Moderate"
+                ? "rgb(255,230,0)"
+                : label === "High"
+                  ? "rgb(255,140,0)"
+                  : "rgb(200,0,0)";
+          return (
+            <div key={label} className="flex items-center gap-3 text-sm text-foreground/80">
+              <span className="h-3 w-6 rounded-full" style={{ background: color }} /> {label}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
