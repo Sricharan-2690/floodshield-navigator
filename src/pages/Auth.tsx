@@ -6,8 +6,21 @@ import { db } from "@/integrations/supabase/db";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Chrome, Waves } from "lucide-react";
+import { Waves } from "lucide-react";
 import { useAuth } from "@/auth/AuthProvider";
+
+function GoogleLogo(props: React.SVGProps<SVGSVGElement>) {
+  // Simple inline Google “G” mark (brand colors). Kept as SVG to avoid extra assets.
+  return (
+    <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false" {...props}>
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.18 1.53 7.59 2.81l5.52-5.52C33.95 3.86 29.44 2 24 2 14.73 2 6.76 7.3 3.09 15.07l6.46 5.02C11.41 13.72 17.16 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.5 24.5c0-1.64-.15-3.2-.43-4.7H24v9.01h12.62c-.55 2.96-2.2 5.46-4.69 7.14l7.19 5.57C43.18 37.61 46.5 31.61 46.5 24.5z" />
+      <path fill="#FBBC05" d="M9.55 28.58A14.5 14.5 0 0 1 8.75 24c0-1.59.28-3.13.8-4.58l-6.46-5.02A23.95 23.95 0 0 0 1.5 24c0 3.87.93 7.53 2.59 10.78l6.46-5.02z" />
+      <path fill="#34A853" d="M24 46c6.48 0 11.92-2.14 15.9-5.78l-7.19-5.57c-2 1.35-4.56 2.15-8.71 2.15-6.84 0-12.59-4.22-14.45-10.09l-6.46 5.02C6.76 40.7 14.73 46 24 46z" />
+      <path fill="none" d="M0 0h48v48H0z" />
+    </svg>
+  );
+}
 
 const schema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -139,7 +152,7 @@ export default function AuthPage() {
               disabled={submitting}
               onClick={onGoogle}
             >
-              <Chrome className="size-4" /> Continue with Google
+              <GoogleLogo className="size-4" /> Continue with Google
             </Button>
 
             <div className="relative py-1">
