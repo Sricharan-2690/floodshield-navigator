@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, useMap, useMapEvents, Popup, CircleMarker } from "react-leaflet";
+import DangerAlertMarkers from "@/components/map/DangerAlertMarkers";
 import "leaflet/dist/leaflet.css";
 import { Link } from "react-router-dom";
 import { ArrowLeft, CloudRain, Droplets, Zap, Locate } from "lucide-react";
@@ -253,6 +254,7 @@ export default function MapRisk() {
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
           <RiskRasterLayer setRainData={setRainData} georasterRef={georasterRef} />
           <RiskMapClickHandler georasterRef={georasterRef} rainFactor={rainData.rainFactor} onFloodClick={setClickedFloodInfo} />
+          <DangerAlertMarkers />
           <AutoZoomToLocation userLocation={userLocation} />
           {userLocation && <CurrentLocationMarker position={userLocation} />}
           <RecenterControl userLocation={userLocation} />

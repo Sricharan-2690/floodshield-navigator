@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Bell, Layers, MapPin, Shield, Waves } from "lucide-react";
+import { ArrowRight, BarChart3, Bell, Layers, MapPin, Shield, Waves, Siren, User as UserIcon } from "lucide-react";
 import { useMemo, useRef, useState, type ReactNode, type MouseEvent } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useInViewOnce } from "@/hooks/useInViewOnce";
@@ -7,6 +7,8 @@ import { HamburgerMenu } from "@/components/HamburgerMenu";
 import floodMapImage from "@/assets/flood-map-hyderabad.png";
 import floodMapPreview from "@/assets/flood-map-preview.png";
 import routeMapPreview from "@/assets/route-map-preview.png";
+import { useAuth } from "@/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 type Feature = {
   title: string;
@@ -40,6 +42,9 @@ function BrandMark() {
 }
 
 function TopNav() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <header className="sticky top-0 z-[1100] border-b border-border/60 bg-background/70 backdrop-blur-xl">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
@@ -54,13 +59,45 @@ function TopNav() {
 
         <div className="flex items-center gap-2">
           <Button asChild variant="glass" size="pill" className="hidden sm:inline-flex">
-            <NavLink to="/auth?mode=login">Login</NavLink>
-          </Button>
-          <Button asChild variant="hero" size="pill">
-            <NavLink to="/auth">
-              Sign Up <ArrowRight className="opacity-80" />
+            <NavLink to="/danger-alerts">
+              <span className="inline-flex items-center gap-2">
+                <Siren className="size-4" /> Danger Alerts
+              </span>
             </NavLink>
           </Button>
+
+          {user ? (
+            <>
+              <Button asChild variant="glass" size="pill" className="hidden sm:inline-flex">
+                <NavLink to="/profile">
+                  <span className="inline-flex items-center gap-2">
+                    <UserIcon className="size-4" /> Profile
+                  </span>
+                </NavLink>
+              </Button>
+              <Button
+                variant="hero"
+                size="pill"
+                onClick={async () => {
+                  await signOut();
+                  navigate("/");
+                }}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="glass" size="pill" className="hidden sm:inline-flex">
+                <NavLink to="/auth?mode=login">Login</NavLink>
+              </Button>
+              <Button asChild variant="hero" size="pill">
+                <NavLink to="/auth">
+                  Sign Up <ArrowRight className="opacity-80" />
+                </NavLink>
+              </Button>
+            </>
+          )}
         </div>
       </div>
     </header>
