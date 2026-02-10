@@ -156,12 +156,15 @@ export default function RainCalendar() {
     <div className="min-h-screen relative overflow-hidden">
       {/* Background image */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center"
+        className="absolute inset-0 -z-10 bg-cover bg-center brightness-95 dark:brightness-50"
         style={{ backgroundImage: `url(${rainCalendarBg})` }}
         aria-hidden
       />
       {/* Readability overlay (uses theme tokens) */}
-      <div className="absolute inset-0 -z-10 bg-background/75" aria-hidden />
+      <div
+        className="absolute inset-0 -z-10 bg-background/70 dark:bg-background/90"
+        aria-hidden
+      />
 
       <header className="border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-[1100]">
         <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
