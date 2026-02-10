@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, CloudRain, Droplets, CloudSun } from "lucide-react";
 import { HamburgerMenu } from "@/components/HamburgerMenu";
 import { useRainForecast, type DayRain } from "@/hooks/useRainForecast";
+import rainCalendarBg from "@/assets/rain-calendar-bg.png";
 
 /* ---------- Helpers ---------- */
 
@@ -152,8 +153,16 @@ export default function RainCalendar() {
       : `${MONTHS[firstMonth.getMonth()]} – ${MONTHS[lastMonth.getMonth()]} ${lastMonth.getFullYear()}`;
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background image */}
+      <div
+        className="absolute inset-0 -z-10 bg-cover bg-center"
+        style={{ backgroundImage: `url(${rainCalendarBg})` }}
+        aria-hidden
+      />
+      {/* Readability overlay (uses theme tokens) */}
+      <div className="absolute inset-0 -z-10 bg-background/75" aria-hidden />
+
       <header className="border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-[1100]">
         <div className="mx-auto flex max-w-5xl items-center gap-4 px-6 py-4">
           <HamburgerMenu />
